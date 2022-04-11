@@ -1,1 +1,127 @@
-SHOW databases;CREATE DATABASE 550project;USE 550project;#q1 find movie characters match the MBTI we choose, input=character, output=(Name)SELECT Name FROM charactersWHERE mbti = 'type_you_choose';#Q2 find characters that has the same type, input=character, output=(Name)SELECT Name FROM charactersWHERE mbti = (    SELECT mbti    FROM(        SELECT DISTINCT mbti        FROM characters        WHERE Name ='Vronsky'        ) CD    WHERE mbti is not null);#Q3 find characters that has the same type and the movie they belong to, input=character,#output=(Name,movie_title,mbti)WITH wanted_character    AS (SELECT Name,               movie_id,               mbti        FROM characters        WHERE mbti = (            SELECT mbti            FROM(                SELECT DISTINCT mbti                FROM characters                WHERE Name ='Vronsky'                    ) CCC            WHERE mbti is not null            ))SELECT AA.name,       AA.primaryTitle AS movie_title,       AA.mbti    FROM (        SELECT W.name,               primaryTitle,               mbti        FROM wanted_character W        JOIN movie        ON W.movie_id=movie.movie_id) AA;#Q4 find characters that has the same type and the movie they belong to, as well as the actor name input=character,#output=(Name,title,actorName)WITH wanted_movie    AS (SELECT Name,               C.movie_id,               movie.primaryTitle        FROM characters C        JOIN movie        ON C.movie_id=movie.movie_id         WHERE mbti = (            SELECT mbti            FROM(                SELECT DISTINCT mbti                FROM characters                WHERE Name ='Vronsky'                    ) CC            WHERE mbti is not null            ))SELECT DISTINCT ABB.Name,                ABB.primaryTitle,                actors.primaryNameFROM    (SELECT WW.Name,            WW.primaryTitle,            play_by.actorID    FROM wanted_movie WW    JOIN play_by    ON WW.Name=play_by.Name    AND WW.movie_id=play_by.movie_id) ABBJOIN actorsON actors.actor_id=ABB.actorID;
+SHOW databases;
+CREATE DATABASE 550project;
+USE 550project;
+
+#q1 find movie characters match the MBTI we choose, input=character, output=(Name)
+SELECT Name FROM characters
+WHERE mbti = 'type_you_choose';
+
+#Q2 find characters that has the same type, input=character, output=(Name)
+SELECT Name FROM characters
+WHERE mbti = (
+    SELECT distinct mbti
+    FROM characters
+    WHERE Name ='Vronsky'
+    AND mbti is not null);
+
+#Q3 find characters that has the same type and the movie they belong to, input=character,
+#output=(Name,movie_title,mbti)
+WITH wanted_character
+    AS (SELECT Name,
+               movie_id,
+               mbti
+        FROM characters
+        WHERE mbti = (
+            SELECT DISTINCT mbti
+            FROM characters
+            WHERE Name ='Vronsky'
+            AND mbti is not null
+            ))
+SELECT AA.name,
+       AA.primaryTitle AS movie_title,
+       AA.mbti
+    FROM (
+        SELECT W.name,
+               primaryTitle,
+               mbti
+        FROM wanted_character W
+        JOIN movie
+        ON W.movie_id=movie.movie_id) AA;
+
+#Q4 find characters that has the same type and the movie they belong to, as well as the actor name input=character,
+#output=(Name,title,actorName)
+WITH wanted_movie
+    AS (SELECT Name,
+               C.movie_id,
+               movie.primaryTitle
+        FROM characters C
+        JOIN movie
+        ON C.movie_id=movie.movie_id
+         WHERE mbti = (
+            SELECT DISTINCT mbti
+            FROM characters
+            WHERE Name ='Vronsky'
+            AND mbti is not null
+            ))
+SELECT DISTINCT ABB.Name,
+                ABB.primaryTitle,
+                actors.primaryName
+FROM
+    (SELECT WW.Name,
+            WW.primaryTitle,
+            play_by.actorID
+    FROM wanted_movie WW
+    JOIN play_by
+    ON WW.Name=play_by.Name
+    AND WW.movie_id=play_by.movie_id) ABB
+JOIN actors
+ON actors.actor_id=ABB.actorID;
+
+
+# Q5 Get the percentage of mbti types in each movie
+# output=(movie_id, primaryTitle, mbti, percentage)
+WITH mbti_count AS (
+    SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+    FROM movie m
+    JOIN characters c
+    ON m.movie_id = c.movie_id
+    WHERE mbti IS NOT NULL
+    AND mbti != 'XXXX'
+    GROUP BY m.movie_id, mbti
+),
+  total AS (
+      SELECT m.movie_id, COUNT(*) AS total_number
+      FROM movie m
+      JOIN characters c
+      ON m.movie_id = c.movie_id
+      WHERE mbti IS NOT NULL
+      AND mbti != 'XXXX'
+      GROUP BY m.movie_id
+  )
+SELECT movie_id, primaryTitle, mbti, (mbti_number/total_number)*100 AS percentage
+FROM mbti_count c
+NATURAL JOIN total t
+GROUP BY movie_id, mbti
+
+# Q6 Get the percentage of mbti types played by each actor
+# output=(actor_id, primaryName, mbti, percentage)
+WITH mbti_count_actor AS (
+    SELECT a.actor_id, primaryName, mbti, COUNT(*) AS mbti_number
+    FROM movie m
+    JOIN characters c
+    ON m.movie_id = c.movie_id
+    JOIN play_by pb
+    ON m.movie_id = pb.movie_id
+    JOIN actors a
+    ON a.actor_id=pb.actorID
+    WHERE mbti IS NOT NULL
+    AND mbti != 'XXXX'
+    GROUP BY  a.actor_id, mbti
+),
+  total_actor AS (
+      SELECT a.actor_id, COUNT(*) AS total_number
+      FROM movie m
+      JOIN characters c
+      ON m.movie_id = c.movie_id
+      JOIN play_by pb
+      ON m.movie_id = pb.movie_id
+      JOIN actors a
+      ON a.actor_id=pb.actorID
+      WHERE mbti IS NOT NULL
+      AND mbti != 'XXXX'
+      GROUP BY  a.actor_id
+  )
+SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
+FROM mbti_count_actor
+NATURAL JOIN total_actor
+GROUP BY actor_id, mbti
