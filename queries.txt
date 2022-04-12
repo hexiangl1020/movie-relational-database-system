@@ -126,7 +126,7 @@ FROM mbti_count_actor
 NATURAL JOIN total_actor
 GROUP BY actor_id, mbti
 
-# Q7 Rank the most common MBTI characters among the movies
+# Q7 Rank the actors by the number of same type of MBTI character it plyed
 # output = (mbti, count(mbti))
 WITH top_movies AS (
     SELECT *
@@ -134,15 +134,19 @@ WITH top_movies AS (
     ORDER BY averageRating DESC
 ),
 character_in_top_movies AS (
-    SELECT characters.Name, characters.mbti
+    SELECT characters.Name, characters.mbti, characters.movie_id
     FROM characters join top_movies
     ON characters.movie_id = top_movies.movie_id
     WHERE characters.mbti IS NOT NULL
 )
 
-SELECT character_in_top_movies.mbti, COUNT(*)
-FROM character_in_top_movies
-GROUP BY character_in_top_movies.mbti;
+SELECT actors.primaryName, character_in_top_movies.mbti, COUNT(*)
+FROM character_in_top_movies JOIN play_by
+ON character_in_top_movies.movie_id = play_by.movie_id AND character_in_top_movies.Name = play_by.Name
+JOIN actors
+ON play_by.actorID = actors.actor_id
+GROUP BY actors.primaryName, character_in_top_movies.mbti
+ORDER BY COUNT(*) DESC;
 
 # Q8 Find the other characters with same MBTI and played by the same actor, input(character), using Robin Hood as example
 WITH played_actor AS (
