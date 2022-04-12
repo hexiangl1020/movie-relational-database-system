@@ -125,3 +125,7 @@ SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
 FROM mbti_count_actor
 NATURAL JOIN total_actor
 GROUP BY actor_id, mbti
+
+# Q7 Rank the most common MBTI characters among the top rated movies
+
+# Q8 
