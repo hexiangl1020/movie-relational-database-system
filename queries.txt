@@ -128,4 +128,4 @@ GROUP BY actor_id, mbti
 
 # Q7 Rank the most common MBTI characters among the top rated movies
 
-# Q8 
+# Q8 Find the other characters with same MBTI and played by the same actor
