@@ -193,8 +193,8 @@ FROM (SELECT movie_id, primaryTitle, mbti,
 where mbti_number_rank <= 5
 ORDER BY mbti;
 
-# Q10 Find the cast info of the movie that has the most characters with the same MBTI type of the selected character
-# output = (character_name, movie_title, actor_name)
+# Q10 Find the cast and mbti info of the movie that has the most characters with the same MBTI type of the selected character
+# output = (character_name, movie_title, actor_name, mbti)
 WITH mbti_count AS (
     SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
     FROM movie m
@@ -214,10 +214,9 @@ WITH mbti_count AS (
     ORDER BY mbti_number DESC
     LIMIT 1
 )
-SELECT characters.Name AS character_name, m.movie_title, a.primaryName AS actor_name
+SELECT characters.Name AS character_name, m.movie_title, a.primaryName AS actor_name, characters.mbti
 FROM characters
 JOIN play_by pb ON characters.movie_id = pb.movie_id AND pb.Name=characters.Name
 JOIN top_1_movie m ON characters.movie_id = m.movie_id
 JOIN actors a ON pb.actorID = a.actor_id
 GROUP BY characters.Name, m.movie_title, a.primaryName;
-
