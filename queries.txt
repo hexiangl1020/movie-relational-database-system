@@ -91,7 +91,7 @@ WITH mbti_count AS (
 SELECT movie_id, primaryTitle, mbti, (mbti_number/total_number)*100 AS percentage
 FROM mbti_count c
 NATURAL JOIN total t
-GROUP BY movie_id, mbti
+GROUP BY movie_id, mbti;
 
 # Q6 Get the percentage of mbti types played by each actor
 # output=(actor_id, primaryName, mbti, percentage)
@@ -124,7 +124,7 @@ WITH mbti_count_actor AS (
 SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
 FROM mbti_count_actor
 NATURAL JOIN total_actor
-GROUP BY actor_id, mbti
+GROUP BY actor_id, mbti;
 
 # Q7 Rank the actors by the number of same type of MBTI character it plyed
 # output = (mbti, count(mbti))
@@ -148,27 +148,75 @@ ON play_by.actorID = actors.actor_id
 GROUP BY actors.primaryName, character_in_top_movies.mbti
 ORDER BY COUNT(*) DESC;
 
-# Q8 Find the other characters with same MBTI and played by the same actor, input(character), using Robin Hood as example
+# Q8 Find the other characters with same MBTI and played by the same actor of the selected character
+# output = (character_name, movie_title)
 WITH played_actor AS (
     SELECT play_by.actorID
     FROM play_by
-    WHERE play_by.Name = 'Robin Hood'
+    WHERE play_by.Name = 'Eliza Doolittle' AND movie_id='tt0058385'
 ),
 other_character_same_actor AS (
-    SELECT play_by.Name
+    SELECT play_by.Name, play_by.movie_id, play_by.actorID
     FROM play_by JOIN played_actor
     ON play_by.actorID = played_actor.actorID
-    WHERE play_by.Name != 'Robin Hood'
+    WHERE play_by.Name != 'Eliza Doolittle'
 ),
 other_character_info AS (
-    SELECT characters.Name,characters.mbti,characters.movie_id,characters.img_url
+    SELECT characters.Name,characters.mbti,characters.movie_id,characters.img_url, other_character_same_actor.actorID
     FROM characters JOIN other_character_same_actor
-    ON characters.Name = other_character_same_actor.Name
+    ON characters.Name = other_character_same_actor.Name AND characters.movie_id = other_character_same_actor.movie_id
 )
 
-SELECT other_character_info.Name
-FROM other_character_info JOIN (SELECT characters.mbti FROM characters
-WHERE characters.Name = 'Robin Hood') A
-ON other_character_info.mbti = A.mbti;
+SELECT oci.Name AS character_name, m.primaryTitle AS movie_title
+FROM other_character_info oci
+JOIN (SELECT characters.mbti FROM characters
+    WHERE characters.Name = 'Eliza Doolittle' AND movie_id='tt0058385') A
+ON oci.mbti = A.mbti
+JOIN movie m on m.movie_id = oci.movie_id
+JOIN actors a on a.actor_id = oci.actorID;
 
+# Q9 For each MBTI type, find the top 5 movie that has the most characters of that type
+# output = (movie_id, movie_title, mbti)
+WITH mbti_count AS (
+    SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+    FROM movie m
+    JOIN characters c
+    ON m.movie_id = c.movie_id
+    WHERE mbti IS NOT NULL
+    AND mbti != 'XXXX'
+    GROUP BY m.movie_id, mbti
+)
+SELECT movie_id, primaryTitle AS movie_title, mbti
+FROM (SELECT movie_id, primaryTitle, mbti,
+    row_number() OVER (PARTITION BY mbti ORDER BY mbti_number DESC) AS mbti_number_rank
+    FROM mbti_count) ranks
+where mbti_number_rank <= 5
+ORDER BY mbti;
 
+# Q10 Find the cast and mbti info of the movie that has the most characters with the same MBTI type of the selected character
+# output = (character_name, movie_title, actor_name, mbti)
+WITH mbti_count AS (
+    SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+    FROM movie m
+    JOIN characters c
+    ON m.movie_id = c.movie_id
+    WHERE mbti IS NOT NULL
+    AND mbti != 'XXXX'
+    GROUP BY m.movie_id, mbti
+), top_1_movie AS (
+    SELECT movie_id, primaryTitle AS movie_title
+    FROM mbti_count
+    WHERE mbti= (
+        SELECT mbti
+        FROM characters
+        WHERE Name = 'Eliza Doolittle' AND movie_id='tt0058385'
+    )
+    ORDER BY mbti_number DESC
+    LIMIT 1
+)
+SELECT characters.Name AS character_name, m.movie_title, a.primaryName AS actor_name, characters.mbti
+FROM characters
+JOIN play_by pb ON characters.movie_id = pb.movie_id AND pb.Name=characters.Name
+JOIN top_1_movie m ON characters.movie_id = m.movie_id
+JOIN actors a ON pb.actorID = a.actor_id
+GROUP BY characters.Name, m.movie_title, a.primaryName;
