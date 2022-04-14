@@ -39,7 +39,7 @@ SELECT AA.name,
         ON W.movie_id=movie.movie_id) AA;
 
 #Q4 find characters that has the same type and the movie they belong to, as well as the actor name input=character,
-#output=(Name,title,actorName)
+#output=(Name,title,actorName) takes 24s to run
 WITH wanted_movie
     AS (SELECT Name,
                C.movie_id,
@@ -94,7 +94,7 @@ NATURAL JOIN total t
 GROUP BY movie_id, mbti;
 
 # Q6 Get the percentage of mbti types played by each actor
-# output=(actor_id, primaryName, mbti, percentage)
+# output=(actor_id, primaryName, mbti, percentage) takes more than 50s to run
 WITH mbti_count_actor AS (
     SELECT a.actor_id, primaryName, mbti, COUNT(*) AS mbti_number
     FROM movie m
@@ -127,7 +127,7 @@ NATURAL JOIN total_actor
 GROUP BY actor_id, mbti;
 
 # Q7 Rank the actors by the number of same type of MBTI character it plyed
-# output = (mbti, count(mbti))
+# output = (mbti, count(mbti)) takes 33s to run
 WITH top_movies AS (
     SELECT *
     FROM movie
@@ -149,7 +149,7 @@ GROUP BY actors.primaryName, character_in_top_movies.mbti
 ORDER BY COUNT(*) DESC;
 
 # Q8 Find the other characters with same MBTI and played by the same actor of the selected character
-# output = (character_name, movie_title)
+# output = (character_name, movie_title) takes 26s to run
 WITH played_actor AS (
     SELECT play_by.actorID
     FROM play_by
@@ -194,7 +194,7 @@ where mbti_number_rank <= 5
 ORDER BY mbti;
 
 # Q10 Find the cast and mbti info of the movie that has the most characters with the same MBTI type of the selected character
-# output = (character_name, movie_title, actor_name, mbti)
+# output = (character_name, movie_title, actor_name, mbti) takes 23s to run
 WITH mbti_count AS (
     SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
     FROM movie m
