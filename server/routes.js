@@ -34,12 +34,12 @@ async function hello(req, res) {
 // ********************************************
 
 
-// Route 3 (handler)
+// Route 2 (handler)
 async function mbti_matches(req, res) {
     
     const mbti_type = req.params.mbti_type ? req.params.mbti_type : "ESFP"
         
-    connection.query(`SELECT Name FROM characters 
+    connection.query(`SELECT movie_id,Name FROM characters 
     WHERE mbti = '${mbti_type}'`, function (error, results, fields) {
 
         if (error) {
@@ -53,10 +53,11 @@ async function mbti_matches(req, res) {
     
 }
 
-// Route 4 (handler)
+// Route 3 (handler)
 async function findcsametype(req, res) {
     // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
     const cname = req.params.cname ? req.params.cname : "Vronsky"
+    const mid = req.params.mid ? req.params.mid : "tt0003625"
     connection.query(`
     WITH wanted_character
     AS (SELECT Name,
@@ -66,16 +67,19 @@ async function findcsametype(req, res) {
         WHERE mbti = (
             SELECT DISTINCT mbti
             FROM characters
-            WHERE Name ='${cname}'
+            WHERE Name ='${cname}' 
+            AND movie_id='${mid}'
             AND mbti is not null
             ))
-SELECT AA.name,
+    SELECT AA.movie_id,
+        AA.name,
        AA.primaryTitle AS movie_title,
        AA.mbti
     FROM (
-        SELECT W.name,
-               primaryTitle,
-               mbti
+        SELECT W.movie_id, 
+            W.name,
+            primaryTitle,
+            mbti
         FROM wanted_character W
         JOIN movie
         ON W.movie_id=movie.movie_id) AA`,function (error, results, fields) {
@@ -91,6 +95,52 @@ SELECT AA.name,
     
 }
 
+//Route 4
+async function findcanda(req, res) {
+    // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
+    const cname = req.params.cname ? req.params.cname : "Vronsky"
+    const mid = req.params.mid ? req.params.mid : "tt0003625"
+    connection.query(`
+    WITH wanted_movie
+    AS (SELECT Name,
+               C.movie_id,
+               movie.primaryTitle
+        FROM characters C
+        JOIN movie
+        ON C.movie_id=movie.movie_id
+         WHERE mbti = (
+            SELECT DISTINCT mbti
+            FROM characters
+            WHERE Name ='${cname}'
+            AND movie_id='${mid}'
+            AND mbti is not null
+            ))
+    SELECT DISTINCT ABB.movie_id,
+        ABB.Name,
+        ABB.primaryTitle,
+        actors.primaryName
+    FROM
+    (SELECT WW.movie_id,
+        WW.Name,
+        WW.primaryTitle,
+        play_by.actorID
+    FROM wanted_movie WW
+    JOIN play_by
+    ON WW.Name=play_by.Name
+    AND WW.movie_id=play_by.movie_id) ABB
+    JOIN actors
+    ON actors.actor_id=ABB.actorID`,function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
+    
+    
+}
 
 // ********************************************
 //             MATCH-SPECIFIC ROUTES
@@ -261,6 +311,7 @@ module.exports = {
     hello,
     mbti_matches,
     findcsametype,
+    findcanda,
     mvpct,
     actorpct,
     rankbymbti,

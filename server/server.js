@@ -14,11 +14,15 @@ app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 // Route 1 - register as GET 
 app.get('/hello', routes.hello)
 
-// Route 3 - register as GET 
+
+// Route 2 - register as GET 
 app.get('/mbti_matches/:mbti_type', routes.mbti_matches)
 
-// Route 4 - register as GET 
+// Route 3 - register as GET 
 app.get('/findcsametype', routes.findcsametype)
+
+//Route4
+app.get('/findcanda',routes.findcanda)
 
 // Route 5 - register as GET 
 app.get('/mvpct', routes.mvpct)
