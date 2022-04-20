@@ -326,6 +326,22 @@ async function actormbtiplayed(req, res){
 })
 }
 
+async function characterMbtiList(req, res){
+    connection.query(`SELECT characters.name, characters.mbti
+    FROM characters
+    ORDER BY characters.name`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } 
+        else {
+            res.json({ results: results})
+        }
+        
+    
+})
+}
+
 module.exports = {
     hello,
     mbti_matches,
@@ -335,5 +351,6 @@ module.exports = {
     rankbymbti,
     top5mvmbti,
     samembtiactor,
-    actormbtiplayed
+    actormbtiplayed,
+    characterMbtiList
 }
