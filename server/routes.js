@@ -38,9 +38,26 @@ async function hello(req, res) {
 async function mbti_matches(req, res) {
     
     const mbti_type = req.params.mbti_type ? req.params.mbti_type : "ESFP"
-        
-    connection.query(`SELECT movie_id,Name FROM characters 
-    WHERE mbti = '${mbti_type}'`, function (error, results, fields) {
+    const pagesize = req.params.pagesize ? req.params.pagesize : 10
+    var linenum=(req.query.page-1)*pagesize;
+    if (req.query.page && !isNaN(req.query.page)) {
+        connection.query(`SELECT movie_id,Name FROM characters 
+        WHERE mbti = '${mbti_type}'
+        LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+            } 
+        else if (results) {
+            res.json({ results: results })
+        }
+        });
+    }
+
+    else{
+        connection.query(`SELECT movie_id,Name FROM characters 
+        WHERE mbti = '${mbti_type}'`, function (error, results, fields) {
 
         if (error) {
             console.log(error)
@@ -48,7 +65,9 @@ async function mbti_matches(req, res) {
         } else if (results) {
             res.json({ results: results })
         }
-    });
+        });
+    }
+    
    
     
 }
@@ -58,31 +77,72 @@ async function findcsametype(req, res) {
     // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
     const cname = req.params.cname ? req.params.cname : "Vronsky"
     const mid = req.params.mid ? req.params.mid : "tt0003625"
-    connection.query(`
-    WITH wanted_character
-    AS (SELECT Name,
-               movie_id,
-               mbti
-        FROM characters
-        WHERE mbti = (
-            SELECT DISTINCT mbti
+    const pagesize = req.params.pagesize ? req.params.pagesize : 10
+    var linenum=(req.query.page-1)*pagesize;
+    if (req.query.page && !isNaN(req.query.page)) {
+        connection.query(`
+        WITH wanted_character
+        AS (SELECT Name,
+                   movie_id,
+                   mbti
             FROM characters
-            WHERE Name ='${cname}' 
-            AND movie_id='${mid}'
-            AND mbti is not null
-            ))
-    SELECT AA.movie_id,
-        AA.name,
-       AA.primaryTitle AS movie_title,
-       AA.mbti
-    FROM (
-        SELECT W.movie_id, 
-            W.name,
-            primaryTitle,
-            mbti
-        FROM wanted_character W
-        JOIN movie
-        ON W.movie_id=movie.movie_id) AA`,function (error, results, fields) {
+            WHERE mbti = (
+                SELECT DISTINCT mbti
+                FROM characters
+                WHERE Name ='${cname}' 
+                AND movie_id='${mid}'
+                AND mbti is not null
+                ))
+        SELECT AA.movie_id,
+            AA.name,
+           AA.primaryTitle AS movie_title,
+           AA.mbti
+        FROM (
+            SELECT W.movie_id, 
+                W.name,
+                primaryTitle,
+                mbti
+            FROM wanted_character W
+            JOIN movie
+            ON W.movie_id=movie.movie_id) AA
+        LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+            } 
+        else if (results) {
+            res.json({ results: results })
+        }
+        });
+    }
+
+    else{
+        connection.query(`
+        WITH wanted_character
+        AS (SELECT Name,
+                   movie_id,
+                   mbti
+            FROM characters
+            WHERE mbti = (
+                SELECT DISTINCT mbti
+                FROM characters
+                WHERE Name ='${cname}' 
+                AND movie_id='${mid}'
+                AND mbti is not null
+                ))
+        SELECT AA.movie_id,
+            AA.name,
+           AA.primaryTitle AS movie_title,
+           AA.mbti
+        FROM (
+            SELECT W.movie_id, 
+                W.name,
+                primaryTitle,
+                mbti
+            FROM wanted_character W
+            JOIN movie
+            ON W.movie_id=movie.movie_id) AA`, function (error, results, fields) {
 
         if (error) {
             console.log(error)
@@ -90,8 +150,8 @@ async function findcsametype(req, res) {
         } else if (results) {
             res.json({ results: results })
         }
-    });
-    
+        });
+    }
     
 }
 
@@ -100,8 +160,55 @@ async function findcanda(req, res) {
     // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
     const cname = req.params.cname ? req.params.cname : "Vronsky"
     const mid = req.params.mid ? req.params.mid : "tt0003625"
-    connection.query(`
-    WITH wanted_movie
+
+    const pagesize = req.params.pagesize ? req.params.pagesize : 10
+    var linenum=(req.query.page-1)*pagesize;
+    if (req.query.page && !isNaN(req.query.page)) {
+        connection.query(`
+        WITH wanted_movie
+        AS (SELECT Name,
+               C.movie_id,
+               movie.primaryTitle
+            FROM characters C
+            JOIN movie
+            ON C.movie_id=movie.movie_id
+            WHERE mbti = (
+                SELECT DISTINCT mbti
+                FROM characters
+                WHERE Name ='${cname}'
+                AND movie_id='${mid}'
+                AND mbti is not null
+                ))
+        SELECT DISTINCT ABB.movie_id,
+        ABB.Name,
+        ABB.primaryTitle,
+        actors.primaryName
+        FROM
+            (SELECT WW.movie_id,
+            WW.Name,
+            WW.primaryTitle,
+            play_by.actorID
+            FROM wanted_movie WW
+            JOIN play_by
+            ON WW.Name=play_by.Name
+            AND WW.movie_id=play_by.movie_id) ABB
+        JOIN actors
+        ON actors.actor_id=ABB.actorID
+        LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+            } 
+        else if (results) {
+            res.json({ results: results })
+        }
+        });
+    }
+
+    else{
+        connection.query(`
+        WITH wanted_movie
     AS (SELECT Name,
                C.movie_id,
                movie.primaryTitle
@@ -129,7 +236,7 @@ async function findcanda(req, res) {
     ON WW.Name=play_by.Name
     AND WW.movie_id=play_by.movie_id) ABB
     JOIN actors
-    ON actors.actor_id=ABB.actorID`,function (error, results, fields) {
+    ON actors.actor_id=ABB.actorID`, function (error, results, fields) {
 
         if (error) {
             console.log(error)
@@ -137,9 +244,9 @@ async function findcanda(req, res) {
         } else if (results) {
             res.json({ results: results })
         }
-    });
-    
-    
+        });
+    }
+
 }
 
 // ********************************************
