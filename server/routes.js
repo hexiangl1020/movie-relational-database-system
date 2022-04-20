@@ -257,6 +257,75 @@ async function top5mvmbti(req, res) {
     })
 }
 
+async function samembtiactor(req, res){
+    connection.query(`WITH played_actor AS (
+        SELECT play_by.actorID
+        FROM play_by
+        WHERE play_by.Name = 'Eliza Doolittle' AND movie_id='tt0058385'
+    ),
+    other_character_same_actor AS (
+        SELECT play_by.Name, play_by.movie_id, play_by.actorID
+        FROM play_by JOIN played_actor
+        ON play_by.actorID = played_actor.actorID
+        WHERE play_by.Name != 'Eliza Doolittle'
+    ),
+    other_character_info AS (
+        SELECT characters.Name,characters.mbti,characters.movie_id,characters.img_url, other_character_same_actor.actorID
+        FROM characters JOIN other_character_same_actor
+        ON characters.Name = other_character_same_actor.Name AND characters.movie_id = other_character_same_actor.movie_id
+    )
+    
+    SELECT oci.Name AS character_name, m.primaryTitle AS movie_title
+    FROM other_character_info oci
+    JOIN (SELECT characters.mbti FROM characters
+        WHERE characters.Name = 'Eliza Doolittle' AND movie_id='tt0058385') A
+    ON oci.mbti = A.mbti
+    JOIN movie m on m.movie_id = oci.movie_id
+    JOIN actors a on a.actor_id = oci.actorID`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } 
+        else {
+            res.json({ results: results})
+        }
+        
+    
+})
+}
+
+async function actormbtiplayed(req, res){
+    connection.query(`WITH top_movies AS (
+        SELECT *
+        FROM movie
+        ORDER BY averageRating DESC
+    ),
+    character_in_top_movies AS (
+        SELECT characters.Name, characters.mbti, characters.movie_id
+        FROM characters join top_movies
+        ON characters.movie_id = top_movies.movie_id
+        WHERE characters.mbti IS NOT NULL
+    )
+    
+    SELECT actors.primaryName, character_in_top_movies.mbti, COUNT(*)
+    FROM character_in_top_movies JOIN play_by
+    ON character_in_top_movies.movie_id = play_by.movie_id AND character_in_top_movies.Name = play_by.Name
+    JOIN actors
+    ON play_by.actorID = actors.actor_id
+    GROUP BY actors.primaryName, character_in_top_movies.mbti
+    ORDER BY COUNT(*) DESC`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } 
+        else {
+            res.json({ results: results})
+        }
+        
+    
+})
+}
+
 module.exports = {
     hello,
     mbti_matches,
@@ -264,5 +333,7 @@ module.exports = {
     mvpct,
     actorpct,
     rankbymbti,
-    top5mvmbti
+    top5mvmbti,
+    samembtiactor,
+    actormbtiplayed
 }
