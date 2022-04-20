@@ -262,36 +262,25 @@ async function movieList(req, res) {
     const startYearHigh = req.query.startYearHigh || 3000
     const ratingLow = req.query.RatingLow || 0
     const ratingHigh = req.query.RatingHigh && req.query.RatingHigh==0 ? 0 : req.query.RatingHigh==undefined ? 10 : req.query.RatingHigh
+    
+    let page_size = 300000
+    let start_idx = 0
     if (req.query.page && !isNaN(req.query.page)) {
-        const page_size = req.query.pagesize || 10
-        const start_idx = (req.query.page-1)*page_size
-
-        connection.query(`SELECT *
-        FROM movie 
-        WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} 
-        ORDER BY primaryTitle ASC
-        LIMIT ${start_idx},${page_size}`, function (error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-    } else {
-        connection.query(`SELECT *
-        FROM movie 
-        WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} 
-        ORDER BY primaryTitle ASC
-        `, function (error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
+        page_size = req.query.pagesize || 10
+        start_idx = (req.query.page-1)*page_size
     }
+    connection.query(`SELECT *
+    FROM movie 
+    WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} 
+    ORDER BY primaryTitle ASC
+    LIMIT ${start_idx},${page_size}`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
 }
 
 module.exports = {
