@@ -360,9 +360,16 @@ async function movieList(req, res) {
 }
 
 async function characterMbtiList(req, res){
-    connection.query(`SELECT characters.name, characters.mbti
+    let page_size = 1500000
+    let start_idx = 0
+    if (req.query.page && !isNaN(req.query.page)) {
+        page_size = req.query.pagesize || 10
+        start_idx = (req.query.page-1)*page_size
+    }
+    connection.query(`SELECT *
     FROM characters
-    ORDER BY characters.name`, function (error, results, fields) {
+    WHERE characters.name != '?' AND characters.name != '???' AND characters.name != '????'
+    LIMIT ${start_idx},${page_size}`, function (error, results, fields) {
         if (error) {
             console.log(error)
             res.json({ error: error })
@@ -370,9 +377,7 @@ async function characterMbtiList(req, res){
         else {
             res.json({ results: results})
         }
-        
-    
-})
+    })
 }
 
 module.exports = {
