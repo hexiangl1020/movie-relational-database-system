@@ -381,7 +381,6 @@ module.exports = {
     findcsametype,
     mvpct,
     actorpct,
-    rankbymbti,
     top5mvmbti,
     characterInfo,
     movieInfo,
