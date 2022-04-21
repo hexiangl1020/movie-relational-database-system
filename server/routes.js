@@ -341,7 +341,6 @@ async function characterMbtiList(req, res){
     
 })
 }
-
 module.exports = {
     hello,
     mbti_matches,

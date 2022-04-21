@@ -32,9 +32,11 @@ app.get('/rankbymbti', routes.rankbymbti)
 // Route 8 - register as GET 
 app.get('/top5mvmbti', routes.top5mvmbti)
 
+
 app.get('/samembtiactor', routes.samembtiactor)
 
 app.get('/actormbtiplayed', routes.actormbtiplayed)
+
 
 
 
