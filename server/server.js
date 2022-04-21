@@ -21,18 +21,17 @@ app.get('/mvpct', routes.mvpct)
 
 app.get('/actorpct', routes.actorpct)
 
-app.get('/rankbymbti', routes.rankbymbti)
-
 app.get('/top5mvmbti', routes.top5mvmbti)
 
 app.get('/mvCastMbti', routes.mvCastMbti)
 
+app.get('/samembtiactor', routes.samembtiactor)
+
+app.get('/actormbtiplayed', routes.actormbtiplayed)
+
 app.get('/movieList', routes.movieList)
 
-
-
-
-
+app.get('/characterMbtiList', routes.characterMbtiList)
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
