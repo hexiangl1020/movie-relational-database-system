@@ -13,10 +13,6 @@ const connection = mysql.createConnection({
 connection.connect();
 
 
-// ********************************************
-//            SIMPLE ROUTE EXAMPLE
-// ********************************************
-
 // Route 1 (handler)
 async function hello(req, res) {
     // a GET request to /hello?name=Steve
@@ -28,13 +24,6 @@ async function hello(req, res) {
 }
 
 
-
-// ********************************************
-//               GENERAL ROUTES
-// ********************************************
-
-
-// Route 3 (handler)
 async function mbti_matches(req, res) {
     
     const mbti_type = req.params.mbti_type ? req.params.mbti_type : "ESFP"
@@ -53,9 +42,7 @@ async function mbti_matches(req, res) {
     
 }
 
-// Route 4 (handler)
 async function findcsametype(req, res) {
-    // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
     const cname = req.params.cname ? req.params.cname : "Vronsky"
     connection.query(`
     WITH wanted_character
@@ -91,15 +78,7 @@ SELECT AA.name,
     
 }
 
-
-// ********************************************
-//             MATCH-SPECIFIC ROUTES
-// ********************************************
-
-// Route 5 (handler)
-async function mvpct(req, res) {
-    // TODO: TASK 6: implement and test, potentially writing your own (ungraded) tests
-    
+async function mvpct(req, res) {    
     const mv = req.params.mv ? req.params.mv : "Robin Hood"
     connection.query(`WITH mbti_count AS (
         SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
@@ -138,13 +117,7 @@ async function mvpct(req, res) {
     
 }
 
-// ********************************************
-//            PLAYER-SPECIFIC ROUTES
-// ********************************************
-
-// Route 6 (handler)
 async function actorpct(req, res) {
-    // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
     //var id = req.query.id
     connection.query(`
     WITH mbti_count_actor AS (
@@ -186,50 +159,7 @@ async function actorpct(req, res) {
     });
 }
 
-
-// ********************************************
-//             SEARCH ROUTES
-// ********************************************
-
-// Route 7 (handler)
-async function rankbymbti(req, res) {
-    // TODO: TASK 8: implement and test, potentially writing your own (ungraded) tests
-    // IMPORTANT: in your SQL LIKE matching, use the %query% format to match the search query to substrings, not just the entire string
-        connection.query(`WITH top_movies AS (
-            SELECT *
-            FROM movie
-            ORDER BY averageRating DESC
-        ),
-        character_in_top_movies AS (
-            SELECT characters.Name, characters.mbti, characters.movie_id
-            FROM characters join top_movies
-            ON characters.movie_id = top_movies.movie_id
-            WHERE characters.mbti IS NOT NULL
-        )
-        
-        SELECT actors.primaryName, character_in_top_movies.mbti, COUNT(*)
-        FROM character_in_top_movies JOIN play_by
-        ON character_in_top_movies.movie_id = play_by.movie_id AND character_in_top_movies.Name = play_by.Name
-        JOIN actors
-        ON play_by.actorID = actors.actor_id
-        GROUP BY actors.primaryName, character_in_top_movies.mbti
-        ORDER BY COUNT(*) DESC`,function(error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error})    
-            }
-            else if (results){
-                res.json({ results: results})
-            }
-        }
-        );
-
-}
-
-// Route 8 (handler)
 async function top5mvmbti(req, res) {
-    // TODO: TASK 9: implement and test, potentially writing your own (ungraded) tests
-    // IMPORTANT: in your SQL LIKE matching, use the %query% format to match the search query to substrings, not just the entire string
         connection.query(`WITH mbti_count AS (
             SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
             FROM movie m
@@ -252,8 +182,44 @@ async function top5mvmbti(req, res) {
             else {
                 res.json({ results: results})
             }
-            
-        
+    })
+}
+
+async function mvCastMbti(req, res) {
+    const mv = req.params.mv ? req.params.mv : "tt0058385"
+    const name = req.params.name ? req.params.name : "Eliza Doolittle"
+    connection.query(`WITH mbti_count AS (
+        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+        FROM movie m
+        JOIN characters c
+        ON m.movie_id = c.movie_id
+        WHERE mbti IS NOT NULL
+        AND mbti != 'XXXX'
+        GROUP BY m.movie_id, mbti
+    ), top_1_movie AS (
+        SELECT movie_id, primaryTitle AS movie_title
+        FROM mbti_count
+        WHERE mbti= (
+            SELECT mbti
+            FROM characters
+            WHERE Name = '${name}' AND movie_id='${mv}'
+        )
+        ORDER BY mbti_number DESC
+        LIMIT 1
+    )
+    SELECT characters.Name AS character_name, m.movie_title, a.primaryName AS actor_name, characters.mbti
+    FROM characters
+    JOIN play_by pb ON characters.movie_id = pb.movie_id AND pb.Name=characters.Name
+    JOIN top_1_movie m ON characters.movie_id = m.movie_id
+    JOIN actors a ON pb.actorID = a.actor_id
+    GROUP BY characters.Name, m.movie_title, a.primaryName;`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } 
+        else {
+            res.json({ results: results})
+        }
     })
 }
 
@@ -289,9 +255,7 @@ async function samembtiactor(req, res){
         else {
             res.json({ results: results})
         }
-        
-    
-})
+    })
 }
 
 async function actormbtiplayed(req, res){
@@ -321,9 +285,34 @@ async function actormbtiplayed(req, res){
         else {
             res.json({ results: results})
         }
-        
+    })
+}
+
+async function movieList(req, res) {
+    const title = req.query.title || ''
+    const startYearLow = req.query.startYearLow || 1000
+    const startYearHigh = req.query.startYearHigh || 3000
+    const ratingLow = req.query.RatingLow || 0
+    const ratingHigh = req.query.RatingHigh && req.query.RatingHigh==0 ? 0 : req.query.RatingHigh==undefined ? 10 : req.query.RatingHigh
     
-})
+    let page_size = 300000
+    let start_idx = 0
+    if (req.query.page && !isNaN(req.query.page)) {
+        page_size = req.query.pagesize || 10
+        start_idx = (req.query.page-1)*page_size
+    }
+    connection.query(`SELECT *
+    FROM movie 
+    WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} 
+    ORDER BY primaryTitle ASC
+    LIMIT ${start_idx},${page_size}`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
 }
 
 async function characterMbtiList(req, res){
@@ -341,15 +330,17 @@ async function characterMbtiList(req, res){
     
 })
 }
+
 module.exports = {
     hello,
     mbti_matches,
     findcsametype,
     mvpct,
     actorpct,
-    rankbymbti,
     top5mvmbti,
+    mvCastMbti,
     samembtiactor,
     actormbtiplayed,
+    movieList,
     characterMbtiList
 }
