@@ -78,16 +78,19 @@ SELECT AA.name,
     
 }
 
-async function mvpct(req, res) {    
-    const mv = req.params.mv ? req.params.mv : "Robin Hood"
-    connection.query(`WITH mbti_count AS (
-        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+
+// Route 5 (handler)
+async function mvpct(req, res) {
+    const mvId = req.params.mvId
+    connection.query(
+        `WITH mbti_count AS (
+        SELECT m.movie_id, mbti, COUNT(*) AS mbti_number
         FROM movie m
         JOIN characters c
         ON m.movie_id = c.movie_id
         WHERE mbti IS NOT NULL
         AND mbti != 'XXXX'
-        AND primaryTitle='${mv}'
+        AND m.movie_id = '${mvId}'
         GROUP BY m.movie_id, mbti
     ),
       total AS (
@@ -97,12 +100,13 @@ async function mvpct(req, res) {
           ON m.movie_id = c.movie_id
           WHERE mbti IS NOT NULL
           AND mbti != 'XXXX'
+          AND m.movie_id='${mvId}'
           GROUP BY m.movie_id
       )
-    SELECT movie_id, primaryTitle, mbti, (mbti_number/total_number)*100 AS percentage
+    SELECT movie_id, mbti, (mbti_number/total_number)*100 AS percentage
     FROM mbti_count c
     NATURAL JOIN total t
-    WHERE primaryTitle='${mv}'
+    WHERE movie_id='${mvId}'
     GROUP BY movie_id, mbti`,function (error, results, fields) {
 
             if (error) {
@@ -118,10 +122,10 @@ async function mvpct(req, res) {
 }
 
 async function actorpct(req, res) {
-    //var id = req.query.id
+    var id = req.params.actorId
     connection.query(`
     WITH mbti_count_actor AS (
-    SELECT a.actor_id, primaryName, mbti, COUNT(*) AS mbti_number
+    SELECT a.actor_id, mbti, COUNT(*) AS mbti_number
     FROM movie m
     JOIN characters c
     ON m.movie_id = c.movie_id
@@ -131,6 +135,7 @@ async function actorpct(req, res) {
     ON a.actor_id=pb.actorID
     WHERE mbti IS NOT NULL
     AND mbti != 'XXXX'
+    AND a.actor_id = '${id}'
     GROUP BY  a.actor_id, mbti
     ),
     total_actor AS (
@@ -144,11 +149,13 @@ async function actorpct(req, res) {
       ON a.actor_id=pb.actorID
       WHERE mbti IS NOT NULL
       AND mbti != 'XXXX'
+      AND a.actor_id = '${id}'
       GROUP BY  a.actor_id)
 
-    SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
+    SELECT actor_id, mbti, (mbti_number/total_number)*100 AS percentage
     FROM mbti_count_actor
     NATURAL JOIN total_actor
+    WHERE actor_id = '${id}'
     GROUP BY actor_id, mbti`, function (error, results, fields) {
     if (error) {
         console.log(error)
@@ -183,6 +190,43 @@ async function top5mvmbti(req, res) {
                 res.json({ results: results})
             }
     })
+}
+
+async function characterInfo(req, res) {
+    
+    const mvid = req.params.mvid
+    const name = req.params.name
+        
+    connection.query(
+    `SELECT * FROM characters 
+    WHERE movie_id = '${mvid}'
+    AND Name = '${name}'`, function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
+   
+    
+}
+
+async function movieInfo(req, res) {
+    
+    const mvid = req.params.mvid
+        
+    connection.query(
+    `SELECT * FROM movie 
+    WHERE movie_id = '${mvid}'`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
 }
 
 async function mvCastMbti(req, res) {
@@ -343,6 +387,8 @@ module.exports = {
     mvpct,
     actorpct,
     top5mvmbti,
+    characterInfo,
+    movieInfo,
     mvCastMbti,
     samembtiactor,
     actormbtiplayed,

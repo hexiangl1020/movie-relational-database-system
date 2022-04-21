@@ -11,17 +11,25 @@ const app = express();
 // whitelist localhost 3000
 app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 
+
 app.get('/hello', routes.hello)
 
 app.get('/mbti_matches/:mbti_type', routes.mbti_matches)
 
 app.get('/findcsametype', routes.findcsametype)
 
-app.get('/mvpct', routes.mvpct)
+// Route 5 - register as GET 
+app.get('/mvpct/:mvId', routes.mvpct)
 
-app.get('/actorpct', routes.actorpct)
+// Route 6 - register as GET 
+app.get('/actorpct/:actorId', routes.actorpct)
+
 
 app.get('/top5mvmbti', routes.top5mvmbti)
+
+app.get('/character/:mvid/:name', routes.characterInfo)
+
+app.get('/movie/:mvid', routes.movieInfo)
 
 app.get('/mvCastMbti', routes.mvCastMbti)
 
