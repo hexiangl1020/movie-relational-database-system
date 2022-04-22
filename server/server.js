@@ -8,7 +8,7 @@ const config = require('./config.json')
 
 const app = express();
 
-// whitelist localhost 3000
+// whitelist localhost 3000aaaaaaaaa
 app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 
 
@@ -17,6 +17,9 @@ app.get('/hello', routes.hello)
 app.get('/mbti_matches/:mbti_type', routes.mbti_matches)
 
 app.get('/findcsametype', routes.findcsametype)
+
+//Route4
+app.get('/findcanda',routes.findcanda)
 
 // Route 5 - register as GET 
 app.get('/mvpct/:mvId', routes.mvpct)
