@@ -8,7 +8,7 @@ const config = require('./config.json')
 
 const app = express();
 
-// whitelist localhost 3000aaaaaaaaa
+// whitelist localhost 3000
 app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 
 

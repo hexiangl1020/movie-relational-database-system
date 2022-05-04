@@ -8,7 +8,8 @@ const connection = mysql.createConnection({
     user: config.rds_user,
     password: config.rds_password,
     port: config.rds_port,
-    database: config.rds_db
+    database: config.rds_db,
+    multipleStatements: true
 });
 connection.connect();
 
@@ -248,7 +249,7 @@ async function mvpct(req, res) {
         WHERE mbti IS NOT NULL
         AND mbti != 'XXXX'
         AND m.movie_id = '${mvId}'
-        GROUP BY m.movie_id, mbti
+        GROUP BY mbti
     ),
       total AS (
           SELECT m.movie_id, COUNT(*) AS total_number
@@ -257,13 +258,11 @@ async function mvpct(req, res) {
           ON m.movie_id = c.movie_id
           WHERE mbti IS NOT NULL
           AND mbti != 'XXXX'
-          AND m.movie_id='${mvId}'
           GROUP BY m.movie_id
       )
     SELECT movie_id, mbti, (mbti_number/total_number)*100 AS percentage
     FROM mbti_count c
     NATURAL JOIN total t
-    WHERE movie_id='${mvId}'
     GROUP BY movie_id, mbti`,function (error, results, fields) {
 
             if (error) {
@@ -324,27 +323,30 @@ async function actorpct(req, res) {
 }
 
 async function top5mvmbti(req, res) {
-        connection.query(`WITH mbti_count AS (
+        connection.query(`
+        CREATE OR REPLACE VIEW mbti_count AS
             SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
             FROM movie m
             JOIN characters c
             ON m.movie_id = c.movie_id
             WHERE mbti IS NOT NULL
             AND mbti != 'XXXX'
-            GROUP BY m.movie_id, mbti
-        )
+            GROUP BY m.movie_id, mbti;
         SELECT movie_id, primaryTitle AS movie_title, mbti
         FROM (SELECT movie_id, primaryTitle, mbti,
             row_number() OVER (PARTITION BY mbti ORDER BY mbti_number DESC) AS mbti_number_rank
             FROM mbti_count) ranks
-        where mbti_number_rank <= 5
-        ORDER BY mbti`, function (error, results, fields) {
+        WHERE mbti_number_rank <= 5
+        ORDER BY mbti;
+        `, [1,2], function (error, results, fields) {
             if (error) {
                 console.log(error)
                 res.json({ error: error })
             } 
             else {
-                res.json({ results: results})
+                res.json({ results: results[1]})
+                console.log(results[0]);
+                console.log(results[1]);
             }
     })
 }
@@ -372,8 +374,7 @@ async function characterInfo(req, res) {
 
 async function movieInfo(req, res) {
     
-    const mvid = req.params.mvid
-        
+    const mvid = req.params.mvid;    
     connection.query(
     `SELECT * FROM movie 
     WHERE movie_id = '${mvid}'`, function (error, results, fields) {
