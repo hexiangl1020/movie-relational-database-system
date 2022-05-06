@@ -28,6 +28,11 @@ class MenuBar extends React.Component {
                 Matches
               </NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink active  href="/movieList" >
+                Movies
+              </NavLink>
+            </NavItem>
           </Nav>
       </Navbar>
         )
