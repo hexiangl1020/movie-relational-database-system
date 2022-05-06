@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from "react-router";
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
 import {
     Table,
@@ -99,12 +100,15 @@ class MoviePage extends React.Component {
 }
 
   componentDidMount() {
+    const { mvid } = this.props.match.params;
+    this.setState({ movie_idQuery: mvid });
 
-    getmvmatches(this.state.movie_idQuery).then(res => {
-      this.setState({ movieResults: res.results })
+    getmvmatches(mvid).then(res => {
+      console.log(res)
+      this.setState({ movieResults: res.results[0] })
     })
 
-    getmvmbtipct(this.state.movie_idQuery).then(res => {
+    getmvmbtipct(mvid).then(res => {
       this.setState({ pctresults: res.results })
     })
 
@@ -117,31 +121,28 @@ class MoviePage extends React.Component {
     return (
       <div>
         <MenuBar />
-        <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
-            <Row>
-                <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                    <label>MovieID</label>
-                    <FormInput placeholder="tt0058385" value={this.state.movie_idQuery} onChange={this.handleQueryChange} />
-                </FormGroup></Col>
-                <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                            <Button style={{ marginTop: '4vh' }} onClick={this.updateSearchResults}>Search</Button>
-                        </FormGroup></Col>
-            </Row>
-
-        </Form>
+          <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
+            <Card>
+              <CardBody>
+                <Row gutter='30' align='middle' justify='center'>
+                  <Col flex={2} style={{ textAlign: 'left' }}>
+                    <h3>{this.state.movieResults.primaryTitle}</h3>
+                  </Col>
+                </Row>
+                <Row gutter='30' align='middle' justify='left'>
+                  <Col>
+                    <h5>Start Year: {this.state.movieResults.startYear}</h5>
+                  </Col>
+                </Row>
+                <Row gutter='30' align='middle' justify='left'>
+                  <Col>
+                    <h5>AverageRating: {this.state.movieResults.averageRating}</h5>
+                  </Col>
+                </Row>
+              </CardBody> 
+            </Card>
+          </div>
         <Divider />
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>Search a movie by movieID</h3>
-          <Table
-            dataSource={this.state.movieResults}
-            columns={matchmovieColumns}
-            pagination={{
-              pageSizeOptions: [5, 10],
-              defaultPageSize: 10,
-              showQuickJumper: true,
-            }}
-          />
-        </div>
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
           <h3>Percentage of Each MBTI type of characters in this movie</h3>
           <Table
@@ -160,4 +161,4 @@ class MoviePage extends React.Component {
   }
 }
 
-export default MoviePage;
+export default withRouter(MoviePage);

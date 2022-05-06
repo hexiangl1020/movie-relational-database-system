@@ -22,8 +22,8 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
-       <Route exact
-							path="/movie"
+       <Route
+							path="/movie/:mvid"
 							render={() => (
 								<Movieprofile />
 							)}/>
