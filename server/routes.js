@@ -323,31 +323,36 @@ async function actorpct(req, res) {
 }
 
 async function top5mvmbti(req, res) {
-        connection.query(`
-        CREATE OR REPLACE VIEW mbti_count AS
-            SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
-            FROM movie m
-            JOIN characters c
-            ON m.movie_id = c.movie_id
-            WHERE mbti IS NOT NULL
-            AND mbti != 'XXXX'
-            GROUP BY m.movie_id, mbti;
+    const mbti_type = req.query.mbti || ""
+    connection.query(`
+    CREATE OR REPLACE VIEW mbti_count AS
+        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+        FROM movie m
+        JOIN characters c
+        ON m.movie_id = c.movie_id
+        WHERE mbti IS NOT NULL
+        AND mbti != 'XXXX'
+        GROUP BY m.movie_id, mbti;
+    SELECT *
+    FROM (
         SELECT movie_id, primaryTitle AS movie_title, mbti
         FROM (SELECT movie_id, primaryTitle, mbti,
             row_number() OVER (PARTITION BY mbti ORDER BY mbti_number DESC) AS mbti_number_rank
             FROM mbti_count) ranks
         WHERE mbti_number_rank <= 5
-        ORDER BY mbti;
-        `, [1,2], function (error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } 
-            else {
-                res.json({ results: results[1]})
-                console.log(results[0]);
-                console.log(results[1]);
-            }
+        ORDER BY mbti
+    ) m
+    WHERE mbti LIKE '%${mbti_type}%';
+    `, [1,2], function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } 
+        else {
+            res.json({ results: results[1]})
+            // console.log(results[0]);
+            // console.log(results[1]);
+        }
     })
 }
 
@@ -524,10 +529,12 @@ async function characterMbtiList(req, res){
         page_size = req.query.pagesize || 10
         start_idx = (req.query.page-1)*page_size
     }
-    connection.query(`SELECT *
-    FROM characters
-    WHERE characters.name != '?' AND characters.name != '???' AND characters.name != '????'
-    LIMIT ${start_idx},${page_size}`, function (error, results, fields) {
+    const mbti_type = req.query.mbti || ""
+    connection.query(`
+    SELECT *
+    FROM characterMbtiList
+    WHERE mbti LIKE '%${mbti_type}%'
+    `, function (error, results, fields) {
         if (error) {
             console.log(error)
             res.json({ error: error })
