@@ -23,8 +23,8 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
-        <Route exact
-							path="/players"
+        <Route 
+							path="/characterInfo/:movieId/:name"
 							render={() => (
 								<PlayersPage />
 							)}/>

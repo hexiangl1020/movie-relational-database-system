@@ -1,5 +1,33 @@
 import config from './config.json'
 
+const getCharacter = async (movieId, name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/character/${movieId}/${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getMovie = async (movieId) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/movie/${movieId}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getCharacterSameMBTI= async (movieId,name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/findcsametype?mid=${movieId}&cname=${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getCharacterSameActorMBTI= async (movieId,name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/samembtiactor?mvid=${movieId}&name=${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
 const getAllMatches = async (page, pagesize, league) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/matches/${league}?page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
@@ -42,19 +70,11 @@ const getPlayerSearch = async (name, nationality, club, rating_high, rating_low,
     return res.json()
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 export {
+    getCharacter,
+    getMovie,
+    getCharacterSameMBTI,
+    getCharacterSameActorMBTI,
     getAllMatches,
     getAllPlayers,
     getMatch,
