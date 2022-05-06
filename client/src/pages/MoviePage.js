@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { Form, FormInput, FormGroup, Button } from 'shards-react';
 
 import { Table, Row, Col, Divider, DatePicker, Slider } from 'antd';
@@ -30,25 +29,19 @@ class MoviesPage extends React.Component {
   }
 
   handleTitleQueryChange(event) {
-    console.log('aaa');
-    console.log(event.target.value);
     this.setState({
       titleQuery: event.target.value,
     });
   }
 
   handleYearQueryChange(dates, dateStrings) {
-    // console.log(typeof dateStrings[0]);
     this.setState({
       startYearLow: parseInt(dateStrings[0], 10),
       startYearHigh: parseInt(dateStrings[1], 10),
     });
-    console.log(this.state);
   }
 
   handleRatingQueryChange(value) {
-    console.log('aaa');
-    console.log(value);
     this.setState({
       ratingLow: value[0],
       ratingHigh: value[1],
@@ -59,31 +52,24 @@ class MoviesPage extends React.Component {
   }
 
   updateSearchResults() {
-    console.log(this.state);
     getAllMovies(
       this.state.titleQuery,
       this.state.startYearLow,
       this.state.startYearHigh,
       this.state.ratingLow,
-      this.state.ratingHigh,
-      null,
-      null
+      this.state.ratingHigh
     ).then((res) => {
-      console.log(res);
       this.setState({ moviesResults: res.results });
     });
   }
 
   componentDidMount() {
-    console.log('mount');
     getAllMovies(
       this.state.titleQuery,
       this.state.startYearLow,
       this.state.startYearHigh,
       this.state.ratingLow,
-      this.state.ratingHigh,
-      null,
-      null
+      this.state.ratingHigh
     ).then((res) => {
       this.setState({ moviesResults: res.results });
     });
@@ -155,6 +141,7 @@ class MoviesPage extends React.Component {
             defaultPageSize: 5,
             showQuickJumper: true,
           }}
+          style={{ width: '80vw', margin: '0 auto', marginTop: '2vh' }}
         >
           <Column
             title='Title'
@@ -166,13 +153,13 @@ class MoviesPage extends React.Component {
             title='Release Date'
             dataIndex='startYear'
             key='startYear'
-            sorter={(a, b) => a.startYear.localeCompare(b.startYear)}
+            sorter={(a, b) => (a.startYear > b.startYear ? 1 : -1)}
           />
           <Column
             title='Rating'
             dataIndex='averageRating'
             key='averageRating'
-            sorter={(a, b) => a.averageRating.localeCompare(b.averageRating)}
+            sorter={(a, b) => (a.averageRating > b.averageRating ? 1 : -1)}
           />
         </Table>
       </div>
