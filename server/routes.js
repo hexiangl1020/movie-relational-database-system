@@ -99,7 +99,6 @@ SELECT AA.name,
 // Route 5 (handler)
 async function mvpct(req, res) {
     // TODO: TASK 6: implement and test, potentially writing your own (ungraded) tests
-    
     const mv = req.params.mv ? req.params.mv : "Robin Hood"
     connection.query(`WITH mbti_count AS (
         SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
@@ -146,44 +145,22 @@ async function mvpct(req, res) {
 async function actorpct(req, res) {
     // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
     //var id = req.query.id
-    connection.query(`
-    WITH mbti_count_actor AS (
-    SELECT a.actor_id, primaryName, mbti, COUNT(*) AS mbti_number
-    FROM movie m
-    JOIN characters c
-    ON m.movie_id = c.movie_id
-    JOIN play_by pb
-    ON m.movie_id = pb.movie_id
-    JOIN actors a
-    ON a.actor_id=pb.actorID
-    WHERE mbti IS NOT NULL
-    AND mbti != 'XXXX'
-    GROUP BY  a.actor_id, mbti
-    ),
-    total_actor AS (
-      SELECT a.actor_id, COUNT(*) AS total_number
-      FROM movie m
-      JOIN characters c
-      ON m.movie_id = c.movie_id
-      JOIN play_by pb
-      ON m.movie_id = pb.movie_id
-      JOIN actors a
-      ON a.actor_id=pb.actorID
-      WHERE mbti IS NOT NULL
-      AND mbti != 'XXXX'
-      GROUP BY  a.actor_id)
-
-    SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
+    const actid = req.params.actid ? req.params.actid : "nm0000001"
+    connection.query(`SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
     FROM mbti_count_actor
     NATURAL JOIN total_actor
-    GROUP BY actor_id, mbti`, function (error, results, fields) {
-    if (error) {
-        console.log(error)
-        res.json({ error: error })
-    } else if (results) {
-        res.json({ results: results })
-    }
-    });
+    WHERE actor_id = '${actid}'
+    GROUP BY actor_id, mbti
+    ;`,function(error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error})    
+            }
+            else if (results){
+                res.json({ results: results})
+            }
+        }
+        );
 }
 
 
@@ -195,25 +172,12 @@ async function actorpct(req, res) {
 async function rankbymbti(req, res) {
     // TODO: TASK 8: implement and test, potentially writing your own (ungraded) tests
     // IMPORTANT: in your SQL LIKE matching, use the %query% format to match the search query to substrings, not just the entire string
-        connection.query(`WITH top_movies AS (
-            SELECT *
-            FROM movie
-            ORDER BY averageRating DESC
-        ),
-        character_in_top_movies AS (
-            SELECT characters.Name, characters.mbti, characters.movie_id
-            FROM characters join top_movies
-            ON characters.movie_id = top_movies.movie_id
-            WHERE characters.mbti IS NOT NULL
-        )
-        
-        SELECT actors.primaryName, character_in_top_movies.mbti, COUNT(*)
-        FROM character_in_top_movies JOIN play_by
-        ON character_in_top_movies.movie_id = play_by.movie_id AND character_in_top_movies.Name = play_by.Name
+        connection.query(`SELECT actor_id, actors.primaryName, character_in_top_movies_play_by.mbti, COUNT(*) AS count
+        FROM character_in_top_movies_play_by
         JOIN actors
-        ON play_by.actorID = actors.actor_id
-        GROUP BY actors.primaryName, character_in_top_movies.mbti
-        ORDER BY COUNT(*) DESC`,function(error, results, fields) {
+        ON character_in_top_movies_play_by.actorID = actors.actor_id
+        GROUP BY actors.primaryName, character_in_top_movies_play_by.mbti
+        ORDER BY COUNT(*) DESC;`,function(error, results, fields) {
             if (error) {
                 console.log(error)
                 res.json({ error: error})    
@@ -295,25 +259,12 @@ async function samembtiactor(req, res){
 }
 
 async function actormbtiplayed(req, res){
-    connection.query(`WITH top_movies AS (
-        SELECT *
-        FROM movie
-        ORDER BY averageRating DESC
-    ),
-    character_in_top_movies AS (
-        SELECT characters.Name, characters.mbti, characters.movie_id
-        FROM characters join top_movies
-        ON characters.movie_id = top_movies.movie_id
-        WHERE characters.mbti IS NOT NULL
-    )
-    
-    SELECT actors.primaryName, character_in_top_movies.mbti, COUNT(*)
-    FROM character_in_top_movies JOIN play_by
-    ON character_in_top_movies.movie_id = play_by.movie_id AND character_in_top_movies.Name = play_by.Name
+    connection.query(`SELECT actor_id, actors.primaryName, character_in_top_movies_play_by.mbti, COUNT(*) AS count
+    FROM character_in_top_movies_play_by
     JOIN actors
-    ON play_by.actorID = actors.actor_id
-    GROUP BY actors.primaryName, character_in_top_movies.mbti
-    ORDER BY COUNT(*) DESC`, function (error, results, fields) {
+    ON character_in_top_movies_play_by.actorID = actors.actor_id
+    GROUP BY actors.primaryName, character_in_top_movies_play_by.mbti
+    ORDER BY COUNT(*) DESC;`, function (error, results, fields) {
         if (error) {
             console.log(error)
             res.json({ error: error })

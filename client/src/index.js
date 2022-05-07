@@ -7,12 +7,13 @@ import {
 } from 'react-router-dom';
 
 import HomePage from './pages/HomePage';
-import PlayersPage from './pages/PlayersPage';
+import Movieprofile from './pages/Movieprofile';
+import ActorPage from './pages/ActorPage';
+import ActorPercentPage from './pages/ActorPercent';
 import 'antd/dist/antd.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
-import MatchesPage from './pages/MatchesPage';
 
 ReactDOM.render(
   <div>
@@ -23,19 +24,19 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
-        <Route exact
-							path="/players"
+       <Route exact
+							path="/actormbtiplayed"
 							render={() => (
-								<PlayersPage />
+								<ActorPage />
 							)}/>
-        <Route exact
-							path="/matches"
+		<Route 
+							path="/actorpct/:actid"
 							render={() => (
-								<MatchesPage />
+								<ActorPercentPage />
 							)}/>
+		/>
       </Switch>
     </Router>
   </div>,
   document.getElementById('root')
 );
-

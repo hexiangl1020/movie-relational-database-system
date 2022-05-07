@@ -19,13 +19,13 @@ class MenuBar extends React.Component {
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink active href="/players">
-                Players
+              <NavLink active href="/movie">
+                Movie Profile
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink active  href="/matches" >
-                Matches
+              <NavLink active  href="/actormbtiplayed" >
+                Actors
               </NavLink>
             </NavItem>
           </Nav>

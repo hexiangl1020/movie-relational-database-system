@@ -24,7 +24,7 @@ app.get('/findcsametype', routes.findcsametype)
 app.get('/mvpct', routes.mvpct)
 
 // Route 6 - register as GET 
-app.get('/actorpct', routes.actorpct)
+app.get('/actorpct/:actid', routes.actorpct)
 
 // Route 7 - register as GET 
 app.get('/rankbymbti', routes.rankbymbti)
@@ -36,6 +36,9 @@ app.get('/top5mvmbti', routes.top5mvmbti)
 app.get('/samembtiactor', routes.samembtiactor)
 
 app.get('/actormbtiplayed', routes.actormbtiplayed)
+
+
+
 
 
 
