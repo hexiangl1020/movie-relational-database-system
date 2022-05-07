@@ -325,14 +325,6 @@ async function actorpct(req, res) {
 async function top5mvmbti(req, res) {
     const mbti_type = req.query.mbti || ""
     connection.query(`
-    CREATE OR REPLACE VIEW mbti_count AS
-        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
-        FROM movie m
-        JOIN characters c
-        ON m.movie_id = c.movie_id
-        WHERE mbti IS NOT NULL
-        AND mbti != 'XXXX'
-        GROUP BY m.movie_id, mbti;
     SELECT *
     FROM (
         SELECT movie_id, primaryTitle AS movie_title, mbti
