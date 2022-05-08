@@ -6,32 +6,20 @@ import {
 	Switch
 } from 'react-router-dom';
 
-import HomePage from './pages/HomePage';
-import PlayersPage from './pages/PlayersPage';
+import CharacterPage from './pages/CharacterPage';
 import 'antd/dist/antd.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
-import MatchesPage from './pages/MatchesPage';
 
 ReactDOM.render(
   <div>
     <Router>
       <Switch>
-        <Route exact
-							path="/"
-							render={() => (
-								<HomePage />
-							)}/>
         <Route 
 							path="/characterInfo/:movieId/:name"
 							render={() => (
-								<PlayersPage />
-							)}/>
-        <Route exact
-							path="/matches"
-							render={() => (
-								<MatchesPage />
+								<CharacterPage />
 							)}/>
       </Switch>
     </Router>

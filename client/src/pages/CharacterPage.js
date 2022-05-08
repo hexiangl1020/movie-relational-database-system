@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardTitle,
-  Progress,
 } from 'shards-react';
 
 import {
@@ -25,7 +23,7 @@ import { RadarChart } from 'react-vis';
 import { format } from 'd3-format';
 
 import MenuBar from '../components/MenuBar';
-import { getPlayerSearch, getPlayer, getCharacter, getMovie,getCharacterSameActorMBTI,getCharacterSameMBTI } from '../fetcher';
+import { getCharacter, getMovie,getCharacterSameActorMBTI,getCharacterSameMBTI } from '../fetcher';
 const wideFormat = format('.3r');
 const { Column, ColumnGroup } = Table;
 
@@ -34,7 +32,7 @@ const sameMbtiColumns = [
     title: 'img',
     dataIndex: 'img_url',
     key: 'img_url',
-    render:  img_url => <img src={img_url} />
+    render:  img_url => <img style={{ width: '10vw', height: '10vw'}} src={img_url} />
   },
   {
     title:'Character Name',
@@ -48,24 +46,10 @@ const sameMbtiColumns = [
   }
 ];
 
-class PlayersPage extends React.Component {
+class CharacterPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nameQuery: '',
-      nationalityQuery: '',
-      clubQuery: '',
-      ratingHighQuery: 100,
-      ratingLowQuery: 0,
-      potHighQuery: 100,
-      potLowQuery: 0,
-      selectedPlayerId: window.location.search
-        ? window.location.search.substring(1).split('=')[1]
-        : 229594,
-      selectedPlayerDetails: null,
-      playersResults: [],
-
-
       movieId:'',
       characterName:'',
       mbti:'',
@@ -74,58 +58,7 @@ class PlayersPage extends React.Component {
       sameActorMbti:[],
       sameMbti:[]
     };
-
-
-
-    this.updateSearchResults = this.updateSearchResults.bind(this);
-    this.handleNameQueryChange = this.handleNameQueryChange.bind(this);
-    this.handleNationalityQueryChange =
-      this.handleNationalityQueryChange.bind(this);
-    this.handleClubQueryChange = this.handleClubQueryChange.bind(this);
-    this.handleRatingChange = this.handleRatingChange.bind(this);
-    this.handlePotentialChange = this.handlePotentialChange.bind(this);
-  }
-
-  handleNameQueryChange(event) {
-    this.setState({ nameQuery: event.target.value });
-  }
-
-  handleClubQueryChange(event) {
-    // TASK 20: update state variables appropriately. See handleNameQueryChange(event) for reference
-    this.setState({ clubQuery: event.target.value });
-  }
-
-  handleNationalityQueryChange(event) {
-    // TASK 21: update state variables appropriately. See handleNameQueryChange(event) for reference
-    this.setState({ nationalityQuery: event.target.value });
-  }
-
-  handleRatingChange(value) {
-    this.setState({ ratingLowQuery: value[0] });
-    this.setState({ ratingHighQuery: value[1] });
-  }
-
-  handlePotentialChange(value) {
-    // TASK 22: parse value and update state variables appropriately. See handleRatingChange(value) for reference
-    this.setState({ potLowQuery: value[0] });
-    this.setState({ potHighQuery: value[1] });
-  }
-
-  updateSearchResults() {
-    //TASK 23: call getPlayerSearch and update playerResults in state. See componentDidMount() for a hint
-    getPlayerSearch(
-      this.state.nameQuery,
-      this.state.nationalityQuery,
-      this.state.clubQuery,
-      this.state.ratingHighQuery,
-      this.state.ratingLowQuery,
-      this.state.potHighQuery,
-      this.state.potLowQuery,
-      null,
-      null
-    ).then((res) => {
-      this.setState({ playersResults: res.results });
-    });
+    this.goToMovie = this.goToMovie.bind(this);
   }
 
   componentDidMount() {
@@ -133,23 +66,7 @@ class PlayersPage extends React.Component {
 
     this.setState({ movieId: movieId });
     this.setState({ characterName:name })
-
-    // getPlayerSearch(
-    //   this.state.nameQuery,
-    //   this.state.nationalityQuery,
-    //   this.state.clubQuery,
-    //   this.state.ratingHighQuery,
-    //   this.state.ratingLowQuery,
-    //   this.state.potHighQuery,
-    //   this.state.potLowQuery,
-    //   null,
-    //   null
-    // ).then((res) => {
-    //   this.setState({ playersResults: res.results });
-    // });
-
-    // TASK 25: call getPlayer with the appropriate parameter and set update the correct state variable.
-    // See the usage of getMatch in the componentDidMount method of MatchesPage for a hint!
+    
     getCharacter(movieId, name).then((res) => {
       const result = res.results[0];
       this.setState({ mbti: result.mbti });
@@ -170,6 +87,11 @@ class PlayersPage extends React.Component {
       const result = res.results;
       this.setState({ sameActorMbti: result });
     });
+  }
+
+  goToMovie(){
+    console.log('df',this.state.movieDetails.movie_id)
+    window.location = `/movie/${this.state.movieDetails.movie_id}`;
   }
 
   render() {
@@ -198,7 +120,7 @@ class PlayersPage extends React.Component {
                     <h5>MBTI: {this.state.mbti}</h5>
                   </Col>
                 </Row>
-                <Row gutter='30' align='middle' justify='left'>
+                <Row gutter='30' align='middle' justify='left' style={{cursor:'pointer'}} onClick={this.goToMovie}>
                   <Col>
                     <h5>Movie: {this.state.movieDetails && this.state.movieDetails.primaryTitle}</h5>
                   </Col>
@@ -228,7 +150,7 @@ class PlayersPage extends React.Component {
             {this.state.sameActorMbti.length>0 ? (
               <div className='sameMbtiActor'>
                 <Row gutter='30' align='middle' justify='center'>
-                  <h5>Other "{this.state.mbti}" Characters played by {this.state.sameActorMbti[0].primaryName}</h5> 
+                  <h5>Other "{this.state.mbti}" Characters Played by {this.state.sameActorMbti[0].primaryName}</h5> 
                 </Row>
                 <Table
                   dataSource={this.state.sameActorMbti}
@@ -243,4 +165,4 @@ class PlayersPage extends React.Component {
   }
 }
 
-export default withRouter(PlayersPage);
+export default withRouter(CharacterPage);

@@ -62,9 +62,9 @@ async function mbti_matches(req, res) {
 }
 
 async function findcsametype(req, res) {
-    const cname = req.params.cname ? req.params.cname : "Vronsky"
-    const mid = req.params.mid ? req.params.mid : "tt0003625"
-    const pagesize = req.params.pagesize ? req.params.pagesize : 10
+    const cname = req.query.cname ? req.query.cname : "Vronsky"
+    const mid = req.query.mid ? req.query.mid : "tt0003625"
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
     var linenum=(req.query.page-1)*pagesize;
     if (req.query.page && !isNaN(req.query.page)) {
         connection.query(`
@@ -95,6 +95,7 @@ async function findcsametype(req, res) {
             FROM wanted_character W
             JOIN movie
             ON W.movie_id=movie.movie_id) AA
+        ORDER BY AA.img_url DESC
         LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
 
         if (error) {
