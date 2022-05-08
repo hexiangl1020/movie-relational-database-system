@@ -10,41 +10,24 @@ import ActorPercentPage from './pages/ActorPercent';
 import MoviePage from './pages/MoviePage';
 import 'antd/dist/antd.css';
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "shards-ui/dist/css/shards.min.css"
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'shards-ui/dist/css/shards.min.css';
+import './index.css';
 
 ReactDOM.render(
-  <div>
+  <div className='App'>
     <Router>
       <Switch>
-	  	<Route exact
-							path="/"
-							render={() => (
-								<HomePage />
-							)}/>
-       <Route exact
-							path="/actormbtiplayed"
-							render={() => (
-								<ActorPage />
-							)}/>
-		<Route 
-							path="/actorpct/:actid"
-							render={() => (
-								<ActorPercentPage />
-							)}/>
+        <Route exact path='/' render={() => <HomePage />} />
+        <Route exact path='/actormbtiplayed' render={() => <ActorPage />} />
+        <Route path='/actorpct/:actid' render={() => <ActorPercentPage />} />
 
-		
-        <Route 
-							path="/characterInfo/:movieId/:name"
-							render={() => (
-								<CharacterPage />
-							)}/>
-       <Route
-							path="/movie/:mvid"
-							render={() => (
-								<Movieprofile />
-							)}/>
-		<Route exact path='/movieList' render={() => <MoviePage />} />
+        <Route
+          path='/characterInfo/:movieId/:name'
+          render={() => <CharacterPage />}
+        />
+        <Route path='/movie/:mvid' render={() => <Movieprofile />} />
+        <Route exact path='/movieList' render={() => <MoviePage />} />
       </Switch>
     </Router>
   </div>,

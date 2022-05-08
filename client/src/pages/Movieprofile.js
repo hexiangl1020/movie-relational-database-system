@@ -1,16 +1,25 @@
 import React from 'react';
-import { withRouter } from "react-router";
-import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
+import { withRouter } from 'react-router';
 import {
-    Table,
-    Pagination,
-    Select,
-    Row,
-    Col,
-    Divider,
-    Slider,
-    Rate 
-} from 'antd'
+  Form,
+  FormInput,
+  FormGroup,
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  Progress,
+} from 'shards-react';
+import {
+  Table,
+  Pagination,
+  Select,
+  Row,
+  Col,
+  Divider,
+  Slider,
+  Rate,
+} from 'antd';
 import { RadarChart } from 'react-vis';
 import { format } from 'd3-format';
 import Chart from "react-apexcharts";
@@ -21,10 +30,10 @@ const { Option } = Select;
 
 const characterColumns = [
   {
-    title: 'img',
+    title: '',
     dataIndex: 'img_url',
     key: 'img_url',
-    render:  img_url => <img style={{ width: '10vw', height: '10vw'}} src={img_url} />
+    render:  img_url => img_url=='https://www.personality-database.com/images/profile_transparent.png' || img_url==null ? <img style={{ width: '10vw', height: '10vw'}} src='https://www.booksie.com/files/profiles/22/mr-anonymous_230x230.png' /> : <img style={{ width: '10vw', height: '10vw'}} src={img_url} /> 
   },
   {
     title: 'Character',
@@ -68,7 +77,7 @@ class MoviePage extends React.Component {
   }
   
   handleQueryChange(event) {
-    this.setState({ movie_idQuery: event.target.value })
+    this.setState({ movie_idQuery: event.target.value });
   }
 
   updateSearchResults() {
@@ -80,7 +89,10 @@ class MoviePage extends React.Component {
       this.setState({ pctresults: res.results })
     })
 
-}
+    getmvmbtipct(this.state.movie_idQuery).then((res) => {
+      this.setState({ pctresults: res.results });
+    });
+  }
 
   componentDidMount() {
     const { mvid } = this.props.match.params;
@@ -91,6 +103,7 @@ class MoviePage extends React.Component {
     })
 
     getMovieCharacterList(mvid).then(res => {
+      console.log(res.results[3].img_url==null)
       this.setState({ movieCharacters: res.results })
     })
     
@@ -114,38 +127,37 @@ class MoviePage extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className='movieProfile'>
         <MenuBar />
-          <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-            <Card>
-              <CardBody>
-                <Row gutter='30' align='middle' justify='center'>
-                  <Col flex={2} style={{ textAlign: 'left' }}>
-                    <h3>{this.state.movieResults.primaryTitle}</h3>
-                  </Col>
-                </Row>
-                <Row gutter='30' align='middle' justify='left'>
-                  <Col>
-                    <h5>Start Year: {this.state.movieResults.startYear}</h5>
-                  </Col>
-                </Row>
-                <Row gutter='30' align='middle' justify='left'>
-                  <Col>
-                    <h5>AverageRating: {this.state.movieResults.averageRating}</h5>
-                  </Col>
-                </Row>
-              </CardBody> 
-            </Card>
-          </div>
-        <Divider />
+        <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
+          <Card style={{ width: '50vw', margin: '0 auto', background: '#fcf9e8'}}>
+            <CardBody>
+              <Row gutter='30' align='middle' justify='center'>
+                <Col flex={2} style={{ textAlign: 'left' }}>
+                  <h3>{this.state.movieResults.primaryTitle}</h3>
+                </Col>
+              </Row>
+              <Row gutter='30' align='middle' justify='left'>
+                <Col>
+                  <h5>Start Year: {this.state.movieResults.startYear}</h5>
+                </Col>
+              </Row>
+              <Row gutter='30' align='middle' justify='left'>
+                <Col>
+                  <h5>
+                    AverageRating: {this.state.movieResults.averageRating}
+                  </h5>
+                </Col>
+              </Row>
+            </CardBody>
+          </Card>
+        </div>
         {this.state.movieCharacters.length>0 ? (
-          <div className='movieCharacters' style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-            <Row gutter='30' align='middle' justify='center'>
-              <h5>Characters in {this.state.movieResults.primaryTitle}</h5> 
-            </Row>
+          <div className='movieCharacters' style={{ width: '70vw', margin: '0 auto', marginTop: '3vh' }}>
             <Table
               dataSource={this.state.movieCharacters}
               columns={characterColumns}
+              style={{cursor:'pointer'}}
               onRow={(record, rowIndex) => {
                 return {
                   onClick: event => {this.goToCharacter(record.movie_id, record.Name)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  

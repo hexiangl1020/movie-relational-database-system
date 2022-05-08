@@ -484,10 +484,10 @@ async function movieList(req, res) {
     title == '' &&
     startYearLow == 1000 &&
     startYearHigh == 3000 &&
-    ratingLow &&
+    ratingLow == 0 &&
     ratingHigh == 10
   ) {
-    connection.query(`SELECT * FROM movie `, function (error, results, fields) {
+    connection.query(`SELECT * FROM movie`, function (error, results, fields) {
       if (error) {
         console.log(error);
         res.json({ error: error });

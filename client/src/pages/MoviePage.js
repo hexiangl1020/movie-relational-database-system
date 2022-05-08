@@ -7,6 +7,8 @@ import { getAllMovies } from '../fetcher';
 
 import MenuBar from '../components/MenuBar';
 
+import '../index.css';
+
 const { Column } = Table;
 
 class MoviesPage extends React.Component {
@@ -77,7 +79,7 @@ class MoviesPage extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className='MoviePage'>
         <MenuBar />
         <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
           <Row>
@@ -138,10 +140,10 @@ class MoviesPage extends React.Component {
           dataSource={this.state.moviesResults}
           pagination={{
             pageSizeOptions: [5, 10],
-            defaultPageSize: 5,
+            defaultPageSize: 10,
             showQuickJumper: true,
           }}
-          style={{ width: '80vw', margin: '0 auto', marginTop: '2vh' }}
+          style={{ width: '80vw', margin: '0 auto', marginTop: '2vh',cursor:'pointer' }}
         >
           <Column
             title='Title'
