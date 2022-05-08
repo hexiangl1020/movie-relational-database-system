@@ -1,0 +1,18 @@
+.App{
+    background: rgba(224,242,241,0.49);
+}
+
+.MoviePage{
+    height: 100vh;
+    overflow: auto;
+}
+
+.ActorPage{
+    height: 100vh;
+    overflow: auto;
+}
+
+.movieProfile{
+    height: 100vh;
+    overflow: auto;
+}
