@@ -537,6 +537,33 @@ async function characterMbtiList(req, res) {
   );
 }
 
+async function movieCharacterList(req, res) {
+    const mvid = req.query.mvid;
+    connection.query(
+    `
+    SELECT mv.actorID, mv.Name, mv.movie_id, a.primaryName, c.img_url,
+       CASE
+           WHEN c.mbti IS NULL THEN '' ELSE c.mbti
+       END as mbti
+    FROM (
+            SELECT actorID, Name, movie_id
+            FROM play_by
+            WHERE movie_id = '${mvid}'
+        ) mv
+    JOIN characters c ON mv.movie_id = c.movie_id AND mv.Name = c.Name
+    JOIN actors a ON mv.actorID = a.actor_id
+    ORDER BY c.img_url DESC`,
+      function (error, results, fields) {
+        if (error) {
+          console.log(error);
+          res.json({ error: error });
+        } else {
+          res.json({ results: results });
+        }
+      }
+    );
+  }
+
 module.exports = {
   hello,
   mbti_matches,
@@ -552,4 +579,5 @@ module.exports = {
   actormbtiplayed,
   movieList,
   characterMbtiList,
+  movieCharacterList
 };
