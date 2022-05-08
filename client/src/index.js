@@ -6,6 +6,7 @@ import {
 	Switch
 } from 'react-router-dom';
 
+import CharacterPage from './pages/CharacterPage';
 import HomePage from './pages/HomePage';
 import Movieprofile from './pages/Movieprofile';
 import 'antd/dist/antd.css';
@@ -17,10 +18,15 @@ ReactDOM.render(
   <div>
     <Router>
       <Switch>
-        <Route exact
+	  	<Route exact
 							path="/"
 							render={() => (
 								<HomePage />
+							)}/>
+        <Route 
+							path="/characterInfo/:movieId/:name"
+							render={() => (
+								<CharacterPage />
 							)}/>
        <Route
 							path="/movie/:mvid"
