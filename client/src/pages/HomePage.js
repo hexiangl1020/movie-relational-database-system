@@ -12,12 +12,11 @@ const { Option } = Select;
 
 const characterColumns = [
   {
-    // title: 'img',
+    title: '',
     dataIndex: 'img_url',
     key: 'img_url',
-    render: (img_url) => (
-      <img style={{ width: '10vw', height: '10vw' }} src={img_url} />
-    ),
+    render:  img_url => img_url=='https://www.personality-database.com/images/profile_transparent.png' || img_url==null ? <img style={{ width: '10vw', height: '10vw'}} src='https://www.booksie.com/files/profiles/22/mr-anonymous_230x230.png' /> : <img style={{ width: '10vw', height: '10vw'}} src={img_url} /> 
+
   },
   {
     title: 'Name',
@@ -63,12 +62,18 @@ class HomePage extends React.Component {
       matchesResults: [],
       top5: [],
     };
-    this.MbtiOnChange = this.MbtiOnChange.bind(this);
-    this.top5MbtiOnChange = this.top5MbtiOnChange.bind(this);
-    this.goToMatch = this.goToMatch.bind(this);
+    this.MbtiOnChange=this.MbtiOnChange.bind(this)
+    this.top5MbtiOnChange=this.top5MbtiOnChange.bind(this)
+    this.goToMatch = this.goToMatch.bind(this)
+    this.goToMovie = this.goToMovie.bind(this)
+
   }
   goToMatch(mvid, name) {
     window.location = `/characterInfo/${mvid}/${name}`;
+  }
+
+  goToMovie(mvid) {
+    window.location = `/movie/${mvid}`
   }
 
   MbtiOnChange(value) {
@@ -79,7 +84,6 @@ class HomePage extends React.Component {
 
   top5MbtiOnChange(value) {
     gettop5mvmbti(value).then((res) => {
-      console.log(res);
       this.setState({ top5: res.results });
     });
   }
@@ -102,8 +106,8 @@ class HomePage extends React.Component {
     return (
       <div className='HomePage'>
         <MenuBar />
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>All characters in our database</h3>
+        <div style={{ width: '65vw', margin: '0 auto', marginTop: '5vh' }}>
+          <h3>All MBTI characters</h3>
           <Select
             defaultValue=''
             style={{ width: 200 }}
@@ -130,6 +134,7 @@ class HomePage extends React.Component {
           <Table
             dataSource={this.state.allcharacters}
             columns={characterColumns}
+            style={{cursor:'pointer'}}
             onRow={(record, rowIndex) => {
               return {
                 onClick: (event) => {
@@ -144,8 +149,8 @@ class HomePage extends React.Component {
             }}
           />
         </div>
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>Top5 Movies With Most MBTI Characters</h3>
+        <div style={{ width: '65vw', margin: '0 auto', marginTop: '5vh' }}>
+          <h3>🔥Top5 Movies With Most MBTI Characters</h3>
           <Select
             defaultValue='ISTJ'
             style={{ width: 200 }}
@@ -168,8 +173,17 @@ class HomePage extends React.Component {
             <Option value='ENTP'>The Debater ENTP</Option>
             <Option value='ENTJ'>The Commander ENTJ</Option>
           </Select>
-
-          <Table dataSource={this.state.top5} columns={top5Columns} />
+          
+          <Table
+            style={{cursor:'pointer'}}
+            dataSource={this.state.top5}
+            columns={top5Columns}
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: event => {this.goToMovie(record.movie_id)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
+              };
+            }}
+          />
         </div>
       </div>
     );

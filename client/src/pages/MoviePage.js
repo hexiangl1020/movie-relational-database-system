@@ -143,7 +143,7 @@ class MoviesPage extends React.Component {
             defaultPageSize: 10,
             showQuickJumper: true,
           }}
-          style={{ width: '80vw', margin: '0 auto', marginTop: '2vh' }}
+          style={{ width: '80vw', margin: '0 auto', marginTop: '2vh',cursor:'pointer' }}
         >
           <Column
             title='Title'

@@ -22,55 +22,34 @@ import {
 } from 'antd';
 import { RadarChart } from 'react-vis';
 import { format } from 'd3-format';
-
+import Chart from "react-apexcharts";
 import MenuBar from '../components/MenuBar';
-import { getmvmatches, getmvmbtipct } from '../fetcher';
+import { getmvmatches,getmvmbtipct,getMovieCharacterList} from '../fetcher';
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
 
-const matchmovieColumns = [
+const characterColumns = [
   {
-    title: 'movie_id',
-    dataIndex: 'movie_id',
-    key: 'movie_id',
-
-    //render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>,
+    title: '',
+    dataIndex: 'img_url',
+    key: 'img_url',
+    render:  img_url => img_url=='https://www.personality-database.com/images/profile_transparent.png' || img_url==null ? <img style={{ width: '10vw', height: '10vw'}} src='https://www.booksie.com/files/profiles/22/mr-anonymous_230x230.png' /> : <img style={{ width: '10vw', height: '10vw'}} src={img_url} /> 
   },
   {
-    title: 'primaryTitle',
-    dataIndex: 'primaryTitle',
-    key: 'primaryTitle',
+    title: 'Character',
+    dataIndex: 'Name',
+    key: 'Name',
   },
   {
-    title: 'startYear',
-    dataIndex: 'startYear',
-    key: 'startYear',
-  },
-  {
-    title: 'averageRating',
-    dataIndex: 'averageRating',
-    key: 'averageRating',
-  },
-];
-
-const moviepctColumns = [
-  {
-    title: 'movie_id',
-    dataIndex: 'movie_id',
-    key: 'movie_id',
-    //render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>,
-  },
-  {
-    title: 'mbti',
+    title: 'MBTI',
     dataIndex: 'mbti',
     key: 'mbti',
   },
   {
-    title: 'percentage',
-    dataIndex: 'percentage',
-    key: 'percentage',
-    sorter: (a, b) => a.percentage - b.percentage,
-  },
+    title: 'Actor',
+    dataIndex: 'primaryName',
+    key: 'primaryName',
+  }
 ];
 
 class MoviePage extends React.Component {
@@ -79,24 +58,36 @@ class MoviePage extends React.Component {
     this.state = {
       PageNumber: 1,
       PageSize: 10,
-      movieResults: [],
-      movie_idQuery: '',
-      pctresults: [],
+      movieResults:[],
+      movieCharacters:[],
+      movie_idQuery:'',
+      pctresults:[],
+      series: [],
+      options: {},
+      labels: []
     };
-    this.handleQueryChange = this.handleQueryChange.bind(this);
-    this.updateSearchResults = this.updateSearchResults.bind(this);
-    //this.movieOnChange=this.movieOnChange.bind(this)
+    this.handleQueryChange = this.handleQueryChange.bind(this)
+    this.updateSearchResults = this.updateSearchResults.bind(this)
+    this.goToCharacter = this.goToCharacter.bind(this)
+
   }
 
+  goToCharacter(mvid, name) {
+    window.location = `/characterInfo/${mvid}/${name}`
+  }
+  
   handleQueryChange(event) {
     this.setState({ movie_idQuery: event.target.value });
   }
 
   updateSearchResults() {
-    //TASK 23: call getPlayerSearch and update playerResults in state. See componentDidMount() for a hint
-    getmvmatches(this.state.movie_idQuery).then((res) => {
-      this.setState({ movieResults: res.results });
-    });
+    getmvmatches(this.state.movie_idQuery).then(res => {
+        this.setState({ movieResults: res.results })
+    })
+
+    getmvmbtipct(this.state.movie_idQuery).then(res => {
+      this.setState({ pctresults: res.results })
+    })
 
     getmvmbtipct(this.state.movie_idQuery).then((res) => {
       this.setState({ pctresults: res.results });
@@ -107,17 +98,30 @@ class MoviePage extends React.Component {
     const { mvid } = this.props.match.params;
     this.setState({ movie_idQuery: mvid });
 
-    getmvmatches(mvid).then((res) => {
-      this.setState({ movieResults: res.results[0] });
-    });
+    getmvmatches(mvid).then(res => {
+      this.setState({ movieResults: res.results[0] })
+    })
 
-    getmvmbtipct(mvid).then((res) => {
+    getMovieCharacterList(mvid).then(res => {
+      this.setState({ movieCharacters: res.results })
+    })
+    
+
+    getmvmbtipct(mvid).then(res => {
       this.setState({ pctresults: res.results });
-    });
-
-    //gettop5mvmbti(null).then(res => {
-    //  this.setState({ top5: res.results })
-    //})
+          for (var i = 0; i < this.state.pctresults.length; i++){
+            this.setState({ primaryNameQuery: res.results[0].primaryName})
+            this.setState({
+                series: this.state.series.concat(this.state.pctresults[i].percentage)
+              });
+            
+            
+            this.setState({
+                labels: this.state.labels.concat(this.state.pctresults[i].mbti)
+              });
+            }
+          this.setState({options : {labels: this.state.labels}})
+        });
   }
 
   render() {
@@ -125,7 +129,7 @@ class MoviePage extends React.Component {
       <div className='movieProfile'>
         <MenuBar />
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-          <Card>
+          <Card style={{ width: '50vw', margin: '0 auto', background: '#fcf9e8'}}>
             <CardBody>
               <Row gutter='30' align='middle' justify='center'>
                 <Col flex={2} style={{ textAlign: 'left' }}>
@@ -147,19 +151,32 @@ class MoviePage extends React.Component {
             </CardBody>
           </Card>
         </div>
-        <Divider />
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>Percentage of Each MBTI type of characters in this movie</h3>
-          <Table
-            dataSource={this.state.pctresults}
-            columns={moviepctColumns}
-            pagination={{
-              pageSizeOptions: [5, 10],
-              defaultPageSize: 10,
-              showQuickJumper: true,
-            }}
-          />
-        </div>
+        {this.state.movieCharacters.length>0 ? (
+          <div className='movieCharacters' style={{ width: '70vw', margin: '0 auto', marginTop: '3vh' }}>
+            <Table
+              dataSource={this.state.movieCharacters}
+              columns={characterColumns}
+              style={{cursor:'pointer'}}
+              onRow={(record, rowIndex) => {
+                return {
+                  onClick: event => {this.goToCharacter(record.movie_id, record.Name)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
+                };
+              }}
+            >
+            </Table>
+            <Divider />
+          </div>): null}
+        {this.state.pctresults.length>0 ? (<div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
+          <h3>MBTI Percentage</h3>
+          <div className="ActorPercentPage">
+              <div className="row">
+                  <div className="mixed-chart">
+                      <Chart options={this.state.options} series={this.state.series} type="pie" width={750} />
+                  </div>
+              </div>
+          </div>
+        </div>) : null}
+
       </div>
     );
   }

@@ -100,42 +100,49 @@ const rankbymbti = async (value) => {
 };
 
 const actorpct = async (value) => {
-  console.log(value);
-  var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/actorpct/${value}`,
-    {
-      method: 'GET',
-    }
-  );
-  return res.json();
-};
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/actorpct/${value}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
 const getAllMovies = async (
-  title,
-  startYearLow,
-  startYearHigh,
-  RatingLow,
-  RatingHigh
-) => {
-  var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/movieList?title=${title}&startYearLow=${startYearLow}&startYearHigh=${startYearHigh}&RatingLow=${RatingLow}&RatingHigh=${RatingHigh}`,
-    {
-      method: 'GET',
-    }
-  );
-  return res.json();
-};
+    title,
+    startYearLow,
+    startYearHigh,
+    RatingLow,
+    RatingHigh
+  ) => {
+    var res = await fetch(
+      `http://${config.server_host}:${config.server_port}/movieList?title=${title}&startYearLow=${startYearLow}&startYearHigh=${startYearHigh}&RatingLow=${RatingLow}&RatingHigh=${RatingHigh}`,
+      {
+        method: 'GET',
+      }
+    );
+    return res.json();
+  }
+
+const getMovieCharacterList = async (value) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/movieCharacterList?mvid=${value}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+
 
 export {
-  getcharacterMbtiList,
-  getmbtiMatches,
-  gettop5mvmbti,
-  getmvmatches,
-  getmvmbtipct,
-  getCharacter,
-  getMovie,
-  getCharacterSameMBTI,
-  getCharacterSameActorMBTI,
-  rankbymbti,
-  actorpct,
-  getAllMovies,
-};
+    getcharacterMbtiList,
+    getmbtiMatches,
+    gettop5mvmbti,
+    getmvmatches,
+    getmvmbtipct,
+    getCharacter,
+    getMovie,
+    getCharacterSameMBTI,
+    getCharacterSameActorMBTI,
+    rankbymbti,
+    actorpct,
+    getAllMovies,
+    getMovieCharacterList
+}

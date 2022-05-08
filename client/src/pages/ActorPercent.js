@@ -118,7 +118,6 @@ class ActorPercentPage extends React.Component {
         ).then((res) => {
           
           this.setState({ actorsResults: res.results });
-          console.log(this.state.actorsResults);
           for (var i = 0; i < this.state.actorsResults.length; i++){
             this.setState({ primaryNameQuery: res.results[0].primaryName})
             this.setState({
@@ -129,14 +128,9 @@ class ActorPercentPage extends React.Component {
             this.setState({
                 labels: this.state.labels.concat(this.state.actorsResults[i].mbti)
               });
-            console.log(this.state.labels);
             }
           this.setState({options : {labels: this.state.labels}})
         });
-    
-    console.log(this.state.series);
-    console.log(this.state.actorsResults);
-
   }
 
   render() {

@@ -82,7 +82,6 @@ class ActorPage extends React.Component {
   }
 
   goToActorPtc(actid) {
-    console.log(actid);
     window.location = `/actorpct/${actid}`;
   }
 
@@ -129,14 +128,12 @@ class ActorPage extends React.Component {
     ).then((res) => {
       this.setState({ actorsResults: res.results });
     });
-    console.log(this.state.actorsResults);
   }
 
   componentDidMount() {
     rankbymbti(null).then((res) => {
       this.setState({ actorsResults: res.results });
     });
-    console.log(this.state.actorsResults);
   }
 
   render() {
@@ -161,6 +158,7 @@ class ActorPage extends React.Component {
           <Table
             dataSource={this.state.actorsResults}
             columns={actorColumns}
+            style={{cursor:'pointer'}}
             onRow={(record, rowIndex) => {
               return {
                 onClick: (event) => {

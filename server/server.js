@@ -41,6 +41,8 @@ app.get('/movieList', routes.movieList);
 
 app.get('/characterMbtiList', routes.characterMbtiList);
 
+app.get('/movieCharacterList', routes.movieCharacterList);
+
 app.listen(config.server_port, () => {
   console.log(
     `Server running at http://${config.server_host}:${config.server_port}/`
