@@ -25,7 +25,7 @@ app.get('/findcanda',routes.findcanda)
 app.get('/mvpct/:mvId', routes.mvpct)
 
 // Route 6 - register as GET 
-app.get('/actorpct/:actorId', routes.actorpct)
+app.get('/actorpct/:actid', routes.actorpct)
 
 
 app.get('/top5mvmbti', routes.top5mvmbti)
@@ -43,6 +43,9 @@ app.get('/actormbtiplayed', routes.actormbtiplayed)
 app.get('/movieList', routes.movieList)
 
 app.get('/characterMbtiList', routes.characterMbtiList)
+
+
+
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);

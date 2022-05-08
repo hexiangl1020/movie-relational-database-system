@@ -62,6 +62,21 @@ const getCharacterSameActorMBTI= async (movieId,name) => {
     return res.json()
 }
 
+const rankbymbti = async (value) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/actormbtiplayed`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const actorpct = async (value) => {
+    console.log(value)
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/actorpct/${value}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
 
 
 export {
@@ -74,4 +89,6 @@ export {
     getMovie,
     getCharacterSameMBTI,
     getCharacterSameActorMBTI,
+    rankbymbti,
+    actorpct
 }

@@ -9,6 +9,8 @@ import {
 import CharacterPage from './pages/CharacterPage';
 import HomePage from './pages/HomePage';
 import Movieprofile from './pages/Movieprofile';
+import ActorPage from './pages/ActorPage';
+import ActorPercentPage from './pages/ActorPercent';
 import 'antd/dist/antd.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -23,6 +25,18 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
+       <Route exact
+							path="/actormbtiplayed"
+							render={() => (
+								<ActorPage />
+							)}/>
+		<Route 
+							path="/actorpct/:actid"
+							render={() => (
+								<ActorPercentPage />
+							)}/>
+
+		
         <Route 
 							path="/characterInfo/:movieId/:name"
 							render={() => (
