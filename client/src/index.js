@@ -6,6 +6,7 @@ import {
 	Switch
 } from 'react-router-dom';
 
+import CharacterPage from './pages/CharacterPage';
 import HomePage from './pages/HomePage';
 import Movieprofile from './pages/Movieprofile';
 import ActorPage from './pages/ActorPage';
@@ -19,8 +20,7 @@ ReactDOM.render(
   <div>
     <Router>
       <Switch>
-		  
-        <Route exact
+	  	<Route exact
 							path="/"
 							render={() => (
 								<HomePage />
@@ -37,8 +37,19 @@ ReactDOM.render(
 							)}/>
 
 		
+        <Route 
+							path="/characterInfo/:movieId/:name"
+							render={() => (
+								<CharacterPage />
+							)}/>
+       <Route
+							path="/movie/:mvid"
+							render={() => (
+								<Movieprofile />
+							)}/>
       </Switch>
     </Router>
   </div>,
   document.getElementById('root')
 );
+

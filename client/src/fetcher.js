@@ -1,9 +1,6 @@
-
-   
 import config from './config.json'
-
-const getcharacterMbtiList = async () => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/characterMbtiList`, {
+const getcharacterMbtiList = async (value) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/characterMbtiList?mbti=${value}`, {
         method: 'GET',
     })
     return res.json()
@@ -16,8 +13,8 @@ const getmbtiMatches = async (page,pagesize,value) => {
     return res.json()
 }
 
-const gettop5mvmbti = async () => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/top5mvmbti`, {
+const gettop5mvmbti = async (value) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/top5mvmbti?mbti=${value}`, {
         method: 'GET',
     })
     return res.json()
@@ -32,6 +29,34 @@ const getmvmatches = async (value) => {
 
 const getmvmbtipct = async (value) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/mvpct/${value}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getCharacter = async (movieId, name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/character/${movieId}/${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getMovie = async (movieId) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/movie/${movieId}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getCharacterSameMBTI= async (movieId,name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/findcsametype?mid=${movieId}&cname=${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getCharacterSameActorMBTI= async (movieId,name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/samembtiactor?mvid=${movieId}&name=${name}`, {
         method: 'GET',
     })
     return res.json()
@@ -60,6 +85,10 @@ export {
     gettop5mvmbti,
     getmvmatches,
     getmvmbtipct,
+    getCharacter,
+    getMovie,
+    getCharacterSameMBTI,
+    getCharacterSameActorMBTI,
     rankbymbti,
     actorpct
 }
