@@ -1,74 +1,70 @@
-const config = require('./config.json')
+const config = require('./config.json');
 const mysql = require('mysql');
 const e = require('express');
 
 // TODO: fill in your connection details here
 const connection = mysql.createConnection({
-    host: config.rds_host,
-    user: config.rds_user,
-    password: config.rds_password,
-    port: config.rds_port,
-    database: config.rds_db,
-    multipleStatements: true
+  host: config.rds_host,
+  user: config.rds_user,
+  password: config.rds_password,
+  port: config.rds_port,
+  database: config.rds_db,
+  multipleStatements: true,
 });
 connection.connect();
 
-
 // Route 1 (handler)
 async function hello(req, res) {
-    // a GET request to /hello?name=Steve
-    if (req.query.name) {
-        res.send(`Hello, ${req.query.name}! Welcome to the mbti_imdb server!`)
-    } else {
-        res.send(`Hello! Welcome to the mbti_imdb server!`)
-    }
+  // a GET request to /hello?name=Steve
+  if (req.query.name) {
+    res.send(`Hello, ${req.query.name}! Welcome to the mbti_imdb server!`);
+  } else {
+    res.send(`Hello! Welcome to the mbti_imdb server!`);
+  }
 }
 
-
 async function mbti_matches(req, res) {
-    
-    const mbti_type = req.params.mbti_type ? req.params.mbti_type : "ESFP"
-    const pagesize = req.params.pagesize ? req.params.pagesize : 10
-    var linenum=(req.query.page-1)*pagesize;
-    if (req.query.page && !isNaN(req.query.page)) {
-        connection.query(`SELECT movie_id,Name FROM characters 
+  const mbti_type = req.params.mbti_type ? req.params.mbti_type : 'ESFP';
+  const pagesize = req.params.pagesize ? req.params.pagesize : 10;
+  var linenum = (req.query.page - 1) * pagesize;
+  if (req.query.page && !isNaN(req.query.page)) {
+    connection.query(
+      `SELECT movie_id,Name FROM characters 
         WHERE mbti = '${mbti_type}'
-        LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
-
+        LIMIT ${linenum},${pagesize}`,
+      function (error, results, fields) {
         if (error) {
-            console.log(error)
-            res.json({ error: error })
-            } 
-        else if (results) {
-            res.json({ results: results })
-        }
-        });
-    }
-
-    else{
-        connection.query(`SELECT movie_id,Name FROM characters 
-        WHERE mbti = '${mbti_type}'`, function (error, results, fields) {
-
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
+          console.log(error);
+          res.json({ error: error });
         } else if (results) {
-            res.json({ results: results })
+          res.json({ results: results });
         }
-        });
-    }
-    
-   
-    
+      }
+    );
+  } else {
+    connection.query(
+      `SELECT movie_id,Name FROM characters 
+        WHERE mbti = '${mbti_type}'`,
+      function (error, results, fields) {
+        if (error) {
+          console.log(error);
+          res.json({ error: error });
+        } else if (results) {
+          res.json({ results: results });
+        }
+      }
+    );
+  }
 }
 
 async function findcsametype(req, res) {
-    const cname = req.query.cname ? req.query.cname : "Vronsky"
-    const mid = req.query.mid ? req.query.mid : "tt0003625"
-    const pagesize = req.query.pagesize ? req.query.pagesize : 10
-    var linenum=(req.query.page-1)*pagesize;
-    if (req.query.page && !isNaN(req.query.page)) {
-        connection.query(`
+  const cname = req.query.cname ? req.query.cname : 'Vronsky';
+  const mid = req.query.mid ? req.query.mid : 'tt0003625';
+  const pagesize = req.query.pagesize ? req.query.pagesize : 10;
+  var linenum = (req.query.page - 1) * pagesize;
+  if (req.query.page && !isNaN(req.query.page)) {
+    connection.query(
+      `
         WITH wanted_character
         AS (SELECT Name,
                    movie_id,
@@ -97,20 +93,19 @@ async function findcsametype(req, res) {
             JOIN movie
             ON W.movie_id=movie.movie_id) AA
         ORDER BY AA.img_url DESC
-        LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
-
+        LIMIT ${linenum},${pagesize}`,
+      function (error, results, fields) {
         if (error) {
-            console.log(error)
-            res.json({ error: error })
-            } 
-        else if (results) {
-            res.json({ results: results })
+          console.log(error);
+          res.json({ error: error });
+        } else if (results) {
+          res.json({ results: results });
         }
-        });
-    }
-
-    else{
-        connection.query(`
+      }
+    );
+  } else {
+    connection.query(
+      `
         WITH wanted_character
         AS (SELECT Name,
                    movie_id,
@@ -137,29 +132,30 @@ async function findcsametype(req, res) {
                 img_url
             FROM wanted_character W
             JOIN movie
-            ON W.movie_id=movie.movie_id) AA`, function (error, results, fields) {
-
+            ON W.movie_id=movie.movie_id) AA`,
+      function (error, results, fields) {
         if (error) {
-            console.log(error)
-            res.json({ error: error })
+          console.log(error);
+          res.json({ error: error });
         } else if (results) {
-            res.json({ results: results })
+          res.json({ results: results });
         }
-        });
-    }
-    
+      }
+    );
+  }
 }
 
 //Route 4
 async function findcanda(req, res) {
-    // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
-    const cname = req.params.cname ? req.params.cname : "Vronsky"
-    const mid = req.params.mid ? req.params.mid : "tt0003625"
+  // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
+  const cname = req.params.cname ? req.params.cname : 'Vronsky';
+  const mid = req.params.mid ? req.params.mid : 'tt0003625';
 
-    const pagesize = req.params.pagesize ? req.params.pagesize : 10
-    var linenum=(req.query.page-1)*pagesize;
-    if (req.query.page && !isNaN(req.query.page)) {
-        connection.query(`
+  const pagesize = req.params.pagesize ? req.params.pagesize : 10;
+  var linenum = (req.query.page - 1) * pagesize;
+  if (req.query.page && !isNaN(req.query.page)) {
+    connection.query(
+      `
         WITH wanted_movie
         AS (SELECT Name,
                C.movie_id,
@@ -189,20 +185,19 @@ async function findcanda(req, res) {
             AND WW.movie_id=play_by.movie_id) ABB
         JOIN actors
         ON actors.actor_id=ABB.actorID
-        LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
-
+        LIMIT ${linenum},${pagesize}`,
+      function (error, results, fields) {
         if (error) {
-            console.log(error)
-            res.json({ error: error })
-            } 
-        else if (results) {
-            res.json({ results: results })
+          console.log(error);
+          res.json({ error: error });
+        } else if (results) {
+          res.json({ results: results });
         }
-        });
-    }
-
-    else{
-        connection.query(`
+      }
+    );
+  } else {
+    connection.query(
+      `
         WITH wanted_movie
     AS (SELECT Name,
                C.movie_id,
@@ -231,24 +226,24 @@ async function findcanda(req, res) {
     ON WW.Name=play_by.Name
     AND WW.movie_id=play_by.movie_id) ABB
     JOIN actors
-    ON actors.actor_id=ABB.actorID`, function (error, results, fields) {
-
+    ON actors.actor_id=ABB.actorID`,
+      function (error, results, fields) {
         if (error) {
-            console.log(error)
-            res.json({ error: error })
+          console.log(error);
+          res.json({ error: error });
         } else if (results) {
-            res.json({ results: results })
+          res.json({ results: results });
         }
-        });
-    }
-
+      }
+    );
+  }
 }
 
 // Route 5 (handler)
 async function mvpct(req, res) {
-    const mvId = req.params.mvId
-    connection.query(
-        `WITH mbti_count AS (
+  const mvId = req.params.mvId;
+  connection.query(
+    `WITH mbti_count AS (
         SELECT m.movie_id, mbti, COUNT(*) AS mbti_number
         FROM movie m
         JOIN characters c
@@ -270,44 +265,44 @@ async function mvpct(req, res) {
     SELECT movie_id, mbti, (mbti_number/total_number)*100 AS percentage
     FROM mbti_count c
     NATURAL JOIN total t
-    GROUP BY movie_id, mbti`,function (error, results, fields) {
-
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-    
-
-    
+    GROUP BY movie_id, mbti`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else if (results) {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
 async function actorpct(req, res) {
-    // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
-    //var id = req.query.id
-    const actid = req.params.actid ? req.params.actid : "nm0000001"
-    connection.query(`SELECT actor_id, primaryName, mbti, mbti_number AS percentage
+  // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
+  //var id = req.query.id
+  const actid = req.params.actid ? req.params.actid : 'nm0000001';
+  connection.query(
+    `SELECT actor_id, primaryName, mbti, mbti_number AS percentage
     FROM mbti_count_actor
     NATURAL JOIN total_actor
     WHERE actor_id = '${actid}'
     GROUP BY actor_id, mbti
-    ;`,function(error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error})    
-            }
-            else if (results){
-                res.json({ results: results})
-            }
-        }
-        );
+    ;`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else if (results) {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
 async function top5mvmbti(req, res) {
-    const mbti_type = req.query.mbti || ""
-    connection.query(`
+  const mbti_type = req.query.mbti || '';
+  connection.query(
+    `
     CREATE OR REPLACE VIEW mbti_count AS
         SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
         FROM movie m
@@ -326,60 +321,62 @@ async function top5mvmbti(req, res) {
         ORDER BY mbti
     ) m
     WHERE mbti LIKE '%${mbti_type}%';
-    `, [1,2], function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } 
-        else {
-            res.json({ results: results[1]})
-            // console.log(results[0]);
-            // console.log(results[1]);
-        }
-    })
+    `,
+    [1, 2],
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else {
+        res.json({ results: results[1] });
+        // console.log(results[0]);
+        // console.log(results[1]);
+      }
+    }
+  );
 }
 
 async function characterInfo(req, res) {
-    
-    const mvid = req.params.mvid
-    const name = req.params.name
+  const mvid = req.params.mvid;
+  const name = req.params.name;
 
-    connection.query(
+  connection.query(
     `SELECT * FROM characters 
     WHERE movie_id = '${mvid}'
     AND Name = '${name}'
-    Limit 1`, function (error, results, fields) {
-
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } else if (results) {
-            res.json({ results: results })
-        }
-    });
-   
-    
+    Limit 1`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else if (results) {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
 async function movieInfo(req, res) {
-    
-    const mvid = req.params.mvid;    
-    connection.query(
+  const mvid = req.params.mvid;
+  connection.query(
     `SELECT * FROM movie 
-    WHERE movie_id = '${mvid}'`, function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } else if (results) {
-            res.json({ results: results })
-        }
-    });
+    WHERE movie_id = '${mvid}'`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else if (results) {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
 async function mvCastMbti(req, res) {
-    const mv = req.query.mv ? req.query.mv : "tt0058385"
-    const name = req.query.name ? req.query.name : "Eliza Doolittle"
-    connection.query(`WITH mbti_count AS (
+  const mv = req.query.mv ? req.query.mv : 'tt0058385';
+  const name = req.query.name ? req.query.name : 'Eliza Doolittle';
+  connection.query(
+    `WITH mbti_count AS (
         SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
         FROM movie m
         JOIN characters c
@@ -403,22 +400,24 @@ async function mvCastMbti(req, res) {
     JOIN play_by pb ON characters.movie_id = pb.movie_id AND pb.Name=characters.Name
     JOIN top_1_movie m ON characters.movie_id = m.movie_id
     JOIN actors a ON pb.actorID = a.actor_id
-    GROUP BY characters.Name, m.movie_title, a.primaryName;`, function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } 
-        else {
-            res.json({ results: results})
-        }
-    })
+    GROUP BY characters.Name, m.movie_title, a.primaryName;`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
-async function samembtiactor(req, res){
-    const mvid = req.query.mvid
-    const name = req.query.name
+async function samembtiactor(req, res) {
+  const mvid = req.query.mvid;
+  const name = req.query.name;
 
-    connection.query(`WITH played_actor AS (
+  connection.query(
+    `WITH played_actor AS (
         SELECT play_by.actorID
         FROM play_by
         WHERE play_by.Name = '${name}' AND movie_id='${mvid}'
@@ -439,98 +438,118 @@ async function samembtiactor(req, res){
     FROM other_character_same_actor oci
     JOIN actors a on a.actor_id = oci.actorID
     JOIN same_mbti sm ON oci.movie_id = sm.movie_id AND oci.Name = sm.Name
-    JOIN movie m on m.movie_id = oci.movie_id`, function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } 
-        else {
-            res.json({ results: results})
-        }
-    })
+    JOIN movie m on m.movie_id = oci.movie_id`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
-async function actormbtiplayed(req, res){
-    connection.query(`SELECT actor_id, actors.primaryName, character_in_top_movies_play_by.mbti, COUNT(*) AS count
+async function actormbtiplayed(req, res) {
+  connection.query(
+    `SELECT actor_id, actors.primaryName, character_in_top_movies_play_by.mbti, COUNT(*) AS count
     FROM character_in_top_movies_play_by
     JOIN actors
     ON character_in_top_movies_play_by.actorID = actors.actor_id
     GROUP BY actors.primaryName, character_in_top_movies_play_by.mbti
-    ORDER BY COUNT(*) DESC;`, function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } 
-        else {
-            res.json({ results: results})
-        }
-    })
+    ORDER BY COUNT(*) DESC;`,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
 async function movieList(req, res) {
-    const title = req.query.title || ''
-    const startYearLow = req.query.startYearLow || 1000
-    const startYearHigh = req.query.startYearHigh || 3000
-    const ratingLow = req.query.RatingLow || 0
-    const ratingHigh = req.query.RatingHigh && req.query.RatingHigh==0 ? 0 : req.query.RatingHigh==undefined ? 10 : req.query.RatingHigh
-    
-    let page_size = 300000
-    let start_idx = 0
-    if (req.query.page && !isNaN(req.query.page)) {
-        page_size = req.query.pagesize || 10
-        start_idx = (req.query.page-1)*page_size
-    }
-    connection.query(`SELECT *
-    FROM movie 
-    WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} 
-    ORDER BY primaryTitle ASC
-    LIMIT ${start_idx},${page_size}`, function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } else if (results) {
-            res.json({ results: results })
-        }
+  const title = req.query.title || '';
+  const startYearLow = req.query.startYearLow || 1000;
+  const startYearHigh = req.query.startYearHigh || 3000;
+  const ratingLow = req.query.RatingLow || 0;
+  const ratingHigh =
+    req.query.RatingHigh && req.query.RatingHigh == 0
+      ? 0
+      : req.query.RatingHigh == undefined
+      ? 10
+      : req.query.RatingHigh;
+  if (
+    title == '' &&
+    startYearLow == 1000 &&
+    startYearHigh == 3000 &&
+    ratingLow &&
+    ratingHigh == 10
+  ) {
+    connection.query(`SELECT * FROM movie `, function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else if (results) {
+        res.json({ results: results });
+      }
     });
+  } else {
+    connection.query(
+      `SELECT *
+      FROM movie 
+      WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} `,
+      function (error, results, fields) {
+        if (error) {
+          console.log(error);
+          res.json({ error: error });
+        } else if (results) {
+          res.json({ results: results });
+        }
+      }
+    );
+  }
 }
 
-async function characterMbtiList(req, res){
-    let page_size = 1500000
-    let start_idx = 0
-    if (req.query.page && !isNaN(req.query.page)) {
-        page_size = req.query.pagesize || 10
-        start_idx = (req.query.page-1)*page_size
-    }
-    const mbti_type = req.query.mbti || ""
-    connection.query(`
+async function characterMbtiList(req, res) {
+  let page_size = 1500000;
+  let start_idx = 0;
+  if (req.query.page && !isNaN(req.query.page)) {
+    page_size = req.query.pagesize || 10;
+    start_idx = (req.query.page - 1) * page_size;
+  }
+  const mbti_type = req.query.mbti || '';
+  connection.query(
+    `
     SELECT *
     FROM characterMbtiList
     WHERE mbti LIKE '%${mbti_type}%'
-    `, function (error, results, fields) {
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } 
-        else {
-            res.json({ results: results})
-        }
-    })
+    `,
+    function (error, results, fields) {
+      if (error) {
+        console.log(error);
+        res.json({ error: error });
+      } else {
+        res.json({ results: results });
+      }
+    }
+  );
 }
 
 module.exports = {
-    hello,
-    mbti_matches,
-    findcsametype,
-    findcanda,
-    mvpct,
-    actorpct,
-    top5mvmbti,
-    characterInfo,
-    movieInfo,
-    mvCastMbti,
-    samembtiactor,
-    actormbtiplayed,
-    movieList,
-    characterMbtiList
-    
-}
+  hello,
+  mbti_matches,
+  findcsametype,
+  findcanda,
+  mvpct,
+  actorpct,
+  top5mvmbti,
+  characterInfo,
+  movieInfo,
+  mvCastMbti,
+  samembtiactor,
+  actormbtiplayed,
+  movieList,
+  characterMbtiList,
+};
