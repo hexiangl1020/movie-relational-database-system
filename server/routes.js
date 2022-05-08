@@ -146,7 +146,7 @@ async function actorpct(req, res) {
     // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
     //var id = req.query.id
     const actid = req.params.actid ? req.params.actid : "nm0000001"
-    connection.query(`SELECT actor_id, primaryName, mbti, (mbti_number/total_number)*100 AS percentage
+    connection.query(`SELECT actor_id, primaryName, mbti, mbti_number AS percentage
     FROM mbti_count_actor
     NATURAL JOIN total_actor
     WHERE actor_id = '${actid}'
