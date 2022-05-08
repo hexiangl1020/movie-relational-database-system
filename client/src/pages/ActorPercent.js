@@ -59,24 +59,11 @@ class ActorPercentPage extends React.Component {
       actorsResults: [],
       pctresults: [],
       series: [],
-      options: {
-        chart: {
-            width: 380,
-            type: 'pie',
-        },
-        labels: [],
-        responsive: [{
-            breakpoint: 480,
-            options: {
-              chart: {
-                width: 200
-              },
-              legend: {
-                position: 'bottom'
-              }
-            }
-          }]
-      }
+      options: {},
+      labels: []
+
+        
+      
     };
     
 
@@ -120,11 +107,7 @@ class ActorPercentPage extends React.Component {
     ).then((res) => {
       this.setState({ actorsResults: res.results });
     });
-    for (let i = 0; i < this.setState.actorsResults.length; i++){
-        this.series.append(this.setState.actorsResults[i].mbti);
-        this.options.labels.append(this.setState.actorsResults[i].percentage);
-    }
-
+    
   }
 
   componentDidMount() {
@@ -133,9 +116,25 @@ class ActorPercentPage extends React.Component {
     actorpct(
         actid
         ).then((res) => {
+          
           this.setState({ actorsResults: res.results });
-
+          console.log(this.state.actorsResults);
+          for (var i = 0; i < this.state.actorsResults.length; i++){
+            this.setState({ primaryNameQuery: res.results[0].primaryName})
+            this.setState({
+                series: this.state.series.concat(this.state.actorsResults[i].percentage)
+              });
+            
+            
+            this.setState({
+                labels: this.state.labels.concat(this.state.actorsResults[i].mbti)
+              });
+            console.log(this.state.labels);
+            }
+          this.setState({options : {labels: this.state.labels}})
         });
+    
+    console.log(this.state.series);
     console.log(this.state.actorsResults);
 
   }
@@ -156,7 +155,7 @@ class ActorPercentPage extends React.Component {
             </Row>
 
         </Form> */}
-        <Divider />
+        {/* <Divider />
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
           <h3>Actors</h3>
           <Table
@@ -168,10 +167,17 @@ class ActorPercentPage extends React.Component {
               showQuickJumper: true,
             }}
           />
-        </div>
+        </div> */}
         <Divider />
-        <div id="chart">
-            <Chart options={this.state.options} series={this.state.series} type="pie" width={380} />
+        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
+          <h3>{this.state.primaryNameQuery}</h3>
+        <div className="ActorPercentPage">
+            <div className="row">
+                <div className="mixed-chart">
+                    <Chart options={this.state.options} series={this.state.series} type="pie" width={750} />
+                </div>
+            </div>
+        </div>
         </div>
         {/* <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
           <h3>Percentage of MBTI types of characters the actor played </h3>

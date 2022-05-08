@@ -19,6 +19,7 @@ ReactDOM.render(
   <div>
     <Router>
       <Switch>
+		  
         <Route exact
 							path="/"
 							render={() => (
@@ -34,7 +35,8 @@ ReactDOM.render(
 							render={() => (
 								<ActorPercentPage />
 							)}/>
-		/>
+
+		
       </Switch>
     </Router>
   </div>,
