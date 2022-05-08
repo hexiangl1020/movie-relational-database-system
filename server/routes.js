@@ -532,4 +532,5 @@ module.exports = {
     actormbtiplayed,
     movieList,
     characterMbtiList
+    
 }
