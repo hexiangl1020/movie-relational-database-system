@@ -434,7 +434,7 @@ async function samembtiactor(req, res) {
         FROM characters
         WHERE mbti=(SELECT mbti FROM characters WHERE characters.Name = '${name}' AND movie_id='${mvid}' LIMIT 1)
     )
-    SELECT oci.Name AS character_name, m.primaryTitle AS movie_title, a.primaryName
+    SELECT oci.Name AS character_name, m.primaryTitle AS movie_title, a.primaryName, m.movie_id
     FROM other_character_same_actor oci
     JOIN actors a on a.actor_id = oci.actorID
     JOIN same_mbti sm ON oci.movie_id = sm.movie_id AND oci.Name = sm.Name
@@ -499,7 +499,7 @@ async function movieList(req, res) {
     connection.query(
       `SELECT *
       FROM movie 
-      WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh} `,
+      WHERE primaryTitle LIKE '%${title}%' AND startYear>=${startYearLow} AND startYear<=${startYearHigh} AND averageRating>=${ratingLow} AND averageRating<=${ratingHigh}`,
       function (error, results, fields) {
         if (error) {
           console.log(error);
@@ -524,7 +524,7 @@ async function characterMbtiList(req, res) {
     `
     SELECT *
     FROM characterMbtiList
-    WHERE mbti LIKE '%${mbti_type}%'
+    WHERE mbti LIKE '%${mbti_type}%' AND mbti!='XXXX' AND mbti IS NOT NULL
     `,
     function (error, results, fields) {
       if (error) {
