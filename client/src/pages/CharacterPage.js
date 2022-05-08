@@ -35,7 +35,7 @@ const sameMbtiColumns = [
     render:  img_url => <img style={{ width: '10vw', height: '10vw'}} src={img_url} />
   },
   {
-    title:'Character Name',
+    title:'Character',
     dataIndex:'Name',
     key:'Name'
   },

@@ -8,7 +8,7 @@ const { Option } = Select;
 
 const characterColumns = [
   {
-    title: 'img',
+    title: '',
     dataIndex: 'img_url',
     key: 'img_url',
     render:  img_url => <img style={{ width: '10vw', height: '10vw'}} src={img_url} />
@@ -60,10 +60,15 @@ class HomePage extends React.Component {
     this.MbtiOnChange=this.MbtiOnChange.bind(this)
     this.top5MbtiOnChange=this.top5MbtiOnChange.bind(this)
     this.goToMatch = this.goToMatch.bind(this)
+    this.goToMovie = this.goToMovie.bind(this)
 
   }
   goToMatch(mvid, name) {
     window.location = `/characterInfo/${mvid}/${name}`
+  }
+
+  goToMovie(mvid) {
+    window.location = `/movie/${mvid}`
   }
 
   MbtiOnChange(value) {
@@ -157,6 +162,11 @@ class HomePage extends React.Component {
           <Table
             dataSource={this.state.top5}
             columns={top5Columns}
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: event => {this.goToMovie(record.movie_id)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
+              };
+            }}
           />
         </div>
 
