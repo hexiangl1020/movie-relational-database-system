@@ -63,16 +63,17 @@ async function mbti_matches(req, res) {
 }
 
 async function findcsametype(req, res) {
-    const cname = req.params.cname ? req.params.cname : "Vronsky"
-    const mid = req.params.mid ? req.params.mid : "tt0003625"
-    const pagesize = req.params.pagesize ? req.params.pagesize : 10
+    const cname = req.query.cname ? req.query.cname : "Vronsky"
+    const mid = req.query.mid ? req.query.mid : "tt0003625"
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
     var linenum=(req.query.page-1)*pagesize;
     if (req.query.page && !isNaN(req.query.page)) {
         connection.query(`
         WITH wanted_character
         AS (SELECT Name,
                    movie_id,
-                   mbti
+                   mbti,
+                   img_url
             FROM characters
             WHERE mbti = (
                 SELECT DISTINCT mbti
@@ -84,15 +85,18 @@ async function findcsametype(req, res) {
         SELECT AA.movie_id,
             AA.name,
            AA.primaryTitle AS movie_title,
-           AA.mbti
+           AA.mbti,
+           AA.img_url
         FROM (
             SELECT W.movie_id, 
                 W.name,
                 primaryTitle,
-                mbti
+                mbti,
+                img_url
             FROM wanted_character W
             JOIN movie
             ON W.movie_id=movie.movie_id) AA
+        ORDER BY AA.img_url DESC
         LIMIT ${linenum},${pagesize}`, function (error, results, fields) {
 
         if (error) {
@@ -110,7 +114,8 @@ async function findcsametype(req, res) {
         WITH wanted_character
         AS (SELECT Name,
                    movie_id,
-                   mbti
+                   mbti,
+                   img_url
             FROM characters
             WHERE mbti = (
                 SELECT DISTINCT mbti
@@ -122,12 +127,14 @@ async function findcsametype(req, res) {
         SELECT AA.movie_id,
             AA.name,
            AA.primaryTitle AS movie_title,
-           AA.mbti
+           AA.mbti,
+           img_url
         FROM (
             SELECT W.movie_id, 
                 W.name,
                 primaryTitle,
-                mbti
+                mbti,
+                img_url
             FROM wanted_character W
             JOIN movie
             ON W.movie_id=movie.movie_id) AA`, function (error, results, fields) {
@@ -278,48 +285,24 @@ async function mvpct(req, res) {
 }
 
 async function actorpct(req, res) {
-    var id = req.params.actorId
-    connection.query(`
-    WITH mbti_count_actor AS (
-    SELECT a.actor_id, mbti, COUNT(*) AS mbti_number
-    FROM movie m
-    JOIN characters c
-    ON m.movie_id = c.movie_id
-    JOIN play_by pb
-    ON m.movie_id = pb.movie_id
-    JOIN actors a
-    ON a.actor_id=pb.actorID
-    WHERE mbti IS NOT NULL
-    AND mbti != 'XXXX'
-    AND a.actor_id = '${id}'
-    GROUP BY  a.actor_id, mbti
-    ),
-    total_actor AS (
-      SELECT a.actor_id, COUNT(*) AS total_number
-      FROM movie m
-      JOIN characters c
-      ON m.movie_id = c.movie_id
-      JOIN play_by pb
-      ON m.movie_id = pb.movie_id
-      JOIN actors a
-      ON a.actor_id=pb.actorID
-      WHERE mbti IS NOT NULL
-      AND mbti != 'XXXX'
-      AND a.actor_id = '${id}'
-      GROUP BY  a.actor_id)
-
-    SELECT actor_id, mbti, (mbti_number/total_number)*100 AS percentage
+    // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
+    //var id = req.query.id
+    const actid = req.params.actid ? req.params.actid : "nm0000001"
+    connection.query(`SELECT actor_id, primaryName, mbti, mbti_number AS percentage
     FROM mbti_count_actor
     NATURAL JOIN total_actor
-    WHERE actor_id = '${id}'
-    GROUP BY actor_id, mbti`, function (error, results, fields) {
-    if (error) {
-        console.log(error)
-        res.json({ error: error })
-    } else if (results) {
-        res.json({ results: results })
-    }
-    });
+    WHERE actor_id = '${actid}'
+    GROUP BY actor_id, mbti
+    ;`,function(error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error})    
+            }
+            else if (results){
+                res.json({ results: results})
+            }
+        }
+        );
 }
 
 async function top5mvmbti(req, res) {
@@ -352,11 +335,12 @@ async function characterInfo(req, res) {
     
     const mvid = req.params.mvid
     const name = req.params.name
-        
+
     connection.query(
     `SELECT * FROM characters 
     WHERE movie_id = '${mvid}'
-    AND Name = '${name}'`, function (error, results, fields) {
+    AND Name = '${name}'
+    Limit 1`, function (error, results, fields) {
 
         if (error) {
             console.log(error)
@@ -385,8 +369,8 @@ async function movieInfo(req, res) {
 }
 
 async function mvCastMbti(req, res) {
-    const mv = req.params.mv ? req.params.mv : "tt0058385"
-    const name = req.params.name ? req.params.name : "Eliza Doolittle"
+    const mv = req.query.mv ? req.query.mv : "tt0058385"
+    const name = req.query.name ? req.query.name : "Eliza Doolittle"
     connection.query(`WITH mbti_count AS (
         SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
         FROM movie m
@@ -423,30 +407,31 @@ async function mvCastMbti(req, res) {
 }
 
 async function samembtiactor(req, res){
+    const mvid = req.query.mvid
+    const name = req.query.name
+
     connection.query(`WITH played_actor AS (
         SELECT play_by.actorID
         FROM play_by
-        WHERE play_by.Name = 'Eliza Doolittle' AND movie_id='tt0058385'
+        WHERE play_by.Name = '${name}' AND movie_id='${mvid}'
+        LIMIT 1
     ),
     other_character_same_actor AS (
         SELECT play_by.Name, play_by.movie_id, play_by.actorID
-        FROM play_by JOIN played_actor
-        ON play_by.actorID = played_actor.actorID
-        WHERE play_by.Name != 'Eliza Doolittle'
+        FROM play_by
+        JOIN played_actor ON play_by.actorID = played_actor.actorID
+        WHERE play_by.Name != '${name}' AND movie_id!='${mvid}'
     ),
-    other_character_info AS (
-        SELECT characters.Name,characters.mbti,characters.movie_id,characters.img_url, other_character_same_actor.actorID
-        FROM characters JOIN other_character_same_actor
-        ON characters.Name = other_character_same_actor.Name AND characters.movie_id = other_character_same_actor.movie_id
+    same_mbti AS(
+        SELECT *
+        FROM characters
+        WHERE mbti=(SELECT mbti FROM characters WHERE characters.Name = '${name}' AND movie_id='${mvid}' LIMIT 1)
     )
-    
-    SELECT oci.Name AS character_name, m.primaryTitle AS movie_title
-    FROM other_character_info oci
-    JOIN (SELECT characters.mbti FROM characters
-        WHERE characters.Name = 'Eliza Doolittle' AND movie_id='tt0058385') A
-    ON oci.mbti = A.mbti
-    JOIN movie m on m.movie_id = oci.movie_id
-    JOIN actors a on a.actor_id = oci.actorID`, function (error, results, fields) {
+    SELECT oci.Name AS character_name, m.primaryTitle AS movie_title, a.primaryName
+    FROM other_character_same_actor oci
+    JOIN actors a on a.actor_id = oci.actorID
+    JOIN same_mbti sm ON oci.movie_id = sm.movie_id AND oci.Name = sm.Name
+    JOIN movie m on m.movie_id = oci.movie_id`, function (error, results, fields) {
         if (error) {
             console.log(error)
             res.json({ error: error })
@@ -458,25 +443,12 @@ async function samembtiactor(req, res){
 }
 
 async function actormbtiplayed(req, res){
-    connection.query(`WITH top_movies AS (
-        SELECT *
-        FROM movie
-        ORDER BY averageRating DESC
-    ),
-    character_in_top_movies AS (
-        SELECT characters.Name, characters.mbti, characters.movie_id
-        FROM characters join top_movies
-        ON characters.movie_id = top_movies.movie_id
-        WHERE characters.mbti IS NOT NULL
-    )
-    
-    SELECT actors.primaryName, character_in_top_movies.mbti, COUNT(*)
-    FROM character_in_top_movies JOIN play_by
-    ON character_in_top_movies.movie_id = play_by.movie_id AND character_in_top_movies.Name = play_by.Name
+    connection.query(`SELECT actor_id, actors.primaryName, character_in_top_movies_play_by.mbti, COUNT(*) AS count
+    FROM character_in_top_movies_play_by
     JOIN actors
-    ON play_by.actorID = actors.actor_id
-    GROUP BY actors.primaryName, character_in_top_movies.mbti
-    ORDER BY COUNT(*) DESC`, function (error, results, fields) {
+    ON character_in_top_movies_play_by.actorID = actors.actor_id
+    GROUP BY actors.primaryName, character_in_top_movies_play_by.mbti
+    ORDER BY COUNT(*) DESC;`, function (error, results, fields) {
         if (error) {
             console.log(error)
             res.json({ error: error })
@@ -552,4 +524,5 @@ module.exports = {
     actormbtiplayed,
     movieList,
     characterMbtiList
+    
 }

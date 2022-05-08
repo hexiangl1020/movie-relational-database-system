@@ -1,5 +1,4 @@
 import config from './config.json'
-
 const getcharacterMbtiList = async (value) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/characterMbtiList?mbti=${value}`, {
         method: 'GET',
@@ -35,12 +34,48 @@ const getmvmbtipct = async (value) => {
     return res.json()
 }
 
+const getCharacter = async (movieId, name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/character/${movieId}/${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
+const getMovie = async (movieId) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/movie/${movieId}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
+const getCharacterSameMBTI= async (movieId,name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/findcsametype?mid=${movieId}&cname=${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
+const getCharacterSameActorMBTI= async (movieId,name) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/samembtiactor?mvid=${movieId}&name=${name}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
+const rankbymbti = async (value) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/actormbtiplayed`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
-
+const actorpct = async (value) => {
+    console.log(value)
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/actorpct/${value}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
 
 
@@ -49,5 +84,11 @@ export {
     getmbtiMatches,
     gettop5mvmbti,
     getmvmatches,
-    getmvmbtipct
+    getmvmbtipct,
+    getCharacter,
+    getMovie,
+    getCharacterSameMBTI,
+    getCharacterSameActorMBTI,
+    rankbymbti,
+    actorpct
 }
