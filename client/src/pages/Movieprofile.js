@@ -13,7 +13,7 @@ import {
 } from 'antd'
 import { RadarChart } from 'react-vis';
 import { format } from 'd3-format';
-
+import Chart from "react-apexcharts";
 import MenuBar from '../components/MenuBar';
 import { getmvmatches,getmvmbtipct} from '../fetcher';
 const { Column, ColumnGroup } = Table;
@@ -74,7 +74,10 @@ class MoviePage extends React.Component {
       PageSize: 10,
       movieResults:[],
       movie_idQuery:'',
-      pctresults:[]
+      pctresults:[],
+      series: [],
+      options: {},
+      labels: []
     };
     this.handleQueryChange = this.handleQueryChange.bind(this)
     this.updateSearchResults = this.updateSearchResults.bind(this)
@@ -109,8 +112,25 @@ class MoviePage extends React.Component {
     })
 
     getmvmbtipct(mvid).then(res => {
-      this.setState({ pctresults: res.results })
-    })
+      this.setState({ pctresults: res.results });
+          console.log(this.state.pctresults);
+          for (var i = 0; i < this.state.pctresults.length; i++){
+            this.setState({ primaryNameQuery: res.results[0].primaryName})
+            this.setState({
+                series: this.state.series.concat(this.state.pctresults[i].percentage)
+              });
+            
+            
+            this.setState({
+                labels: this.state.labels.concat(this.state.pctresults[i].mbti)
+              });
+            console.log(this.state.labels);
+            }
+          this.setState({options : {labels: this.state.labels}})
+        });
+    
+    console.log(this.state.series);
+    console.log(this.state.pctresults);
 
     //gettop5mvmbti(null).then(res => {
     //  this.setState({ top5: res.results })
@@ -144,17 +164,15 @@ class MoviePage extends React.Component {
           </div>
         <Divider />
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>Percentage of Each MBTI type of characters in this movie</h3>
-          <Table
-            dataSource={this.state.pctresults}
-            columns={moviepctColumns}
-            pagination={{
-              pageSizeOptions: [5, 10],
-              defaultPageSize: 10,
-              showQuickJumper: true,
-            }}
-          />
-          </div>
+          <h3>MBTI Percentage</h3>
+        <div className="ActorPercentPage">
+            <div className="row">
+                <div className="mixed-chart">
+                    <Chart options={this.state.options} series={this.state.series} type="pie" width={750} />
+                </div>
+            </div>
+        </div>
+        </div>
 
       </div>
     );

@@ -1,16 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-	BrowserRouter as Router,
-	Route,
-	Switch
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import CharacterPage from './pages/CharacterPage';
 import HomePage from './pages/HomePage';
 import Movieprofile from './pages/Movieprofile';
 import ActorPage from './pages/ActorPage';
 import ActorPercentPage from './pages/ActorPercent';
+import MoviePage from './pages/MoviePage';
 import 'antd/dist/antd.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -47,9 +44,9 @@ ReactDOM.render(
 							render={() => (
 								<Movieprofile />
 							)}/>
+		<Route exact path='/movieList' render={() => <MoviePage />} />
       </Switch>
     </Router>
   </div>,
   document.getElementById('root')
 );
-
