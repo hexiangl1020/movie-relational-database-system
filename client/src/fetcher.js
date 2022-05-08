@@ -100,7 +100,6 @@ const rankbymbti = async (value) => {
 };
 
 const actorpct = async (value) => {
-    console.log(value)
     var res = await fetch(`http://${config.server_host}:${config.server_port}/actorpct/${value}`, {
         method: 'GET',
     })

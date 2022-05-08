@@ -103,7 +103,6 @@ class MoviePage extends React.Component {
     })
 
     getMovieCharacterList(mvid).then(res => {
-      console.log(res.results[3].img_url==null)
       this.setState({ movieCharacters: res.results })
     })
     

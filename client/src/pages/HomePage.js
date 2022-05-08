@@ -84,7 +84,6 @@ class HomePage extends React.Component {
 
   top5MbtiOnChange(value) {
     gettop5mvmbti(value).then((res) => {
-      console.log(res);
       this.setState({ top5: res.results });
     });
   }
