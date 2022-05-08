@@ -30,12 +30,12 @@ const { Column, ColumnGroup } = Table;
 const { Option } = Select;
 
 const actorColumns = [
-//   {
-//       title: 'actor_id',
-//       dataIndex: 'actor_id',
-//       key: 'actor_id',
-//     //   sorter: (a, b) => a.actor_id.localeCompare(b.actor_id),
-//   },
+  //   {
+  //       title: 'actor_id',
+  //       dataIndex: 'actor_id',
+  //       key: 'actor_id',
+  //     //   sorter: (a, b) => a.actor_id.localeCompare(b.actor_id),
+  //   },
   {
     title: 'primaryName',
     dataIndex: 'primaryName',
@@ -54,7 +54,7 @@ const actorColumns = [
     dataIndex: 'count',
     key: 'count',
     sorter: (a, b) => a.count - b.count,
-  }
+  },
   // TASK 19: copy over your answers for tasks 7 - 9 to add columns for potential, club, and value
 ];
 
@@ -67,27 +67,26 @@ class ActorPage extends React.Component {
       mbtiQuery: '',
       countQuery: '',
       actorsResults: [],
-      pctresults: []
+      pctresults: [],
     };
-    
 
     this.updateSearchResults = this.updateSearchResults.bind(this);
-    
-    this.handlePrimaryNameQueryChange = this.handlePrimaryNameQueryChange.bind(this);
+
+    this.handlePrimaryNameQueryChange =
+      this.handlePrimaryNameQueryChange.bind(this);
     this.handleActorIdQueryChange = this.handleActorIdQueryChange.bind(this);
-    this.handlembtiQueryChange =
-      this.handlembtiQueryChange.bind(this);
+    this.handlembtiQueryChange = this.handlembtiQueryChange.bind(this);
     this.handleCountQueryChange = this.handleCountQueryChange.bind(this);
     // this.handleRatingChange = this.handleRatingChange.bind(this);
     // this.handlePotentialChange = this.handlePotentialChange.bind(this);
   }
 
   goToActorPtc(actid) {
-    console.log(actid)
-    window.location = `/actorpct/${actid}`
+    console.log(actid);
+    window.location = `/actorpct/${actid}`;
   }
 
-  handleActorIdQueryChange(event){
+  handleActorIdQueryChange(event) {
     this.setState({ actor_id: event.target.value });
   }
 
@@ -105,29 +104,28 @@ class ActorPage extends React.Component {
     this.setState({ countQuery: event.target.value });
   }
 
-//   handleRatingChange(value) {
-//     this.setState({ ratingLowQuery: value[0] });
-//     this.setState({ ratingHighQuery: value[1] });
-//   }
+  //   handleRatingChange(value) {
+  //     this.setState({ ratingLowQuery: value[0] });
+  //     this.setState({ ratingHighQuery: value[1] });
+  //   }
 
-//   handlePotentialChange(value) {
-//     // TASK 22: parse value and update state variables appropriately. See handleRatingChange(value) for reference
-//     this.setState({ potLowQuery: value[0] });
-//     this.setState({ potHighQuery: value[1] });
-//   }
+  //   handlePotentialChange(value) {
+  //     // TASK 22: parse value and update state variables appropriately. See handleRatingChange(value) for reference
+  //     this.setState({ potLowQuery: value[0] });
+  //     this.setState({ potHighQuery: value[1] });
+  //   }
 
   updateSearchResults() {
     //TASK 23: call getPlayerSearch and update playerResults in state. See componentDidMount() for a hint
     rankbymbti(
-    //   this.state.nameQuery,
-    //   this.state.nationalityQuery,
-    //   this.state.clubQuery,
-    //   this.state.ratingHighQuery,
-    //   this.state.ratingLowQuery,
-    //   this.state.potHighQuery,
-    //   this.state.potLowQuery,
+      //   this.state.nameQuery,
+      //   this.state.nationalityQuery,
+      //   this.state.clubQuery,
+      //   this.state.ratingHighQuery,
+      //   this.state.ratingLowQuery,
+      //   this.state.potHighQuery,
+      //   this.state.potLowQuery,
       null
-
     ).then((res) => {
       this.setState({ actorsResults: res.results });
     });
@@ -135,17 +133,15 @@ class ActorPage extends React.Component {
   }
 
   componentDidMount() {
-    rankbymbti(
-          null
-        ).then((res) => {
-          this.setState({ actorsResults: res.results });
-        });
+    rankbymbti(null).then((res) => {
+      this.setState({ actorsResults: res.results });
+    });
     console.log(this.state.actorsResults);
   }
 
   render() {
     return (
-      <div>
+      <div className='ActorPage'>
         <MenuBar />
         {/* <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
             <Row>
@@ -166,10 +162,12 @@ class ActorPage extends React.Component {
             dataSource={this.state.actorsResults}
             columns={actorColumns}
             onRow={(record, rowIndex) => {
-                return {
-                  onClick: event => {this.goToActorPtc(record.actor_id)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
-                };
-              }}
+              return {
+                onClick: (event) => {
+                  this.goToActorPtc(record.actor_id);
+                }, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter
+              };
+            }}
             pagination={{
               pageSizeOptions: [5, 10],
               defaultPageSize: 10,
@@ -189,7 +187,6 @@ class ActorPage extends React.Component {
             }}
           />
           </div> */}
-
       </div>
     );
   }
