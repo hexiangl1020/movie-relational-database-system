@@ -101,7 +101,7 @@ const MenuBar = () => {
               <Button
                 key='movies'
                 component={Link}
-                to='/movieList'
+                to='/movieListInfo'
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 Movies
@@ -109,7 +109,7 @@ const MenuBar = () => {
               <Button
                 key='actors'
                 component={Link}
-                to='/actormbtiplayed'
+                to='/actorMbti'
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 Actors
