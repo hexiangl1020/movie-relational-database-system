@@ -5,6 +5,8 @@ const path = require('path');
 const routes = require('./routes');
 const config = require('./config.json');
 
+const port = process.env.PORT || 8080;
+
 const app = express();
 app.use(cors());
 
@@ -45,9 +47,9 @@ app.get('/characterMbtiList', routes.characterMbtiList);
 
 app.get('/movieCharacterList', routes.movieCharacterList);
 
-app.listen(config.server_port, () => {
+app.listen(port, () => {
   console.log(
-    `Server running at http://${config.server_host}:${config.server_port}/`
+    `Server running at http://${config.server_host}:${port}/`
   );
 });
 app.get('*', (_req, res) => {
