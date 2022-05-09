@@ -17,8 +17,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const pages = [
   ['Home', '/'],
-  ['Movies', '/movieList'],
-  ['Actors', '/actormbtiplayed'],
+  ['Movies', '/movieListInfo'],
+  ['Actors', '/actorMbti'],
 ];
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 const theme = createTheme({
