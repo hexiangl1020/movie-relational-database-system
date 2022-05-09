@@ -101,7 +101,7 @@ class CharacterPage extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className='characterPage'>
         <MenuBar />
           <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
             <Card style={{ width: '50vw', margin: '0 auto', background: '#fcf9e8'}}>
@@ -154,10 +154,10 @@ class CharacterPage extends React.Component {
                   }}
                 >
                 </Table>
+                <Divider />
               </div>): null}
 
 
-            <Divider />
             {this.state.sameActorMbti.length>0 ? (
               <div className='sameMbtiActor'>
                 <Row gutter='30' align='middle' justify='center'>
