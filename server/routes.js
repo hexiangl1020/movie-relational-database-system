@@ -517,16 +517,18 @@ async function movieCharacterList(req, res) {
     const mvid = req.query.mvid;
     connection.query(
     `
-    SELECT mv.actorID, mv.Name, mv.movie_id, a.primaryName, c.img_url,
-       CASE
-           WHEN c.mbti IS NULL THEN '' ELSE c.mbti
-       END as mbti
+    SELECT mv.actorID, mv.Name, mv.movie_id, a.primaryName, c.img_url, c.mbti
     FROM (
             SELECT actorID, Name, movie_id
             FROM play_by
-            WHERE movie_id = '${mvid}'
+            WHERE movie_id = 'tt0081505'
         ) mv
-    JOIN characters c ON mv.movie_id = c.movie_id AND mv.Name = c.Name
+    JOIN (
+        SELECT Name, movie_id, img_url,
+            CASE WHEN mbti IS NULL THEN '' ELSE mbti
+            END as mbti
+      FROM characters) c
+    ON mv.movie_id = c.movie_id AND mv.Name = c.Name
     JOIN actors a ON mv.actorID = a.actor_id
     ORDER BY c.img_url DESC`,
       function (error, results, fields) {
