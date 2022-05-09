@@ -1,7 +1,13 @@
 import config from './config.json';
+
+const domain =
+  !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8080'
+    : 'https://mbti-personality.herokuapp.com';
+
 const getcharacterMbtiList = async (value) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/characterMbtiList?mbti=${value}`,
+    `${domain}/characterMbtiList?mbti=${value}`,
     {
       method: 'GET',
     }
@@ -11,7 +17,7 @@ const getcharacterMbtiList = async (value) => {
 
 const getmbtiMatches = async (page, pagesize, value) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/mbti_matches/${value}`,
+    `${domain}/mbti_matches/${value}`,
     {
       method: 'GET',
     }
@@ -21,7 +27,7 @@ const getmbtiMatches = async (page, pagesize, value) => {
 
 const gettop5mvmbti = async (value) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/top5mvmbti?mbti=${value}`,
+    `${domain}/top5mvmbti?mbti=${value}`,
     {
       method: 'GET',
     }
@@ -31,7 +37,7 @@ const gettop5mvmbti = async (value) => {
 
 const getmvmatches = async (value) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/movie/${value}`,
+    `${domain}/movie/${value}`,
     {
       method: 'GET',
     }
@@ -41,7 +47,7 @@ const getmvmatches = async (value) => {
 
 const getmvmbtipct = async (value) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/mvpct/${value}`,
+    `${domain}/mvpct/${value}`,
     {
       method: 'GET',
     }
@@ -51,7 +57,7 @@ const getmvmbtipct = async (value) => {
 
 const getCharacter = async (movieId, name) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/character/${movieId}/${name}`,
+    `${domain}/character/${movieId}/${name}`,
     {
       method: 'GET',
     }
@@ -61,7 +67,7 @@ const getCharacter = async (movieId, name) => {
 
 const getMovie = async (movieId) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/movie/${movieId}`,
+    `${domain}/movie/${movieId}`,
     {
       method: 'GET',
     }
@@ -71,7 +77,7 @@ const getMovie = async (movieId) => {
 
 const getCharacterSameMBTI = async (movieId, name) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/findcsametype?mid=${movieId}&cname=${name}`,
+    `${domain}/findcsametype?mid=${movieId}&cname=${name}`,
     {
       method: 'GET',
     }
@@ -81,7 +87,7 @@ const getCharacterSameMBTI = async (movieId, name) => {
 
 const getCharacterSameActorMBTI = async (movieId, name) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/samembtiactor?mvid=${movieId}&name=${name}`,
+    `${domain}/samembtiactor?mvid=${movieId}&name=${name}`,
     {
       method: 'GET',
     }
@@ -91,7 +97,7 @@ const getCharacterSameActorMBTI = async (movieId, name) => {
 
 const rankbymbti = async (value) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/actormbtiplayed`,
+    `${domain}/actormbtiplayed`,
     {
       method: 'GET',
     }
@@ -100,7 +106,7 @@ const rankbymbti = async (value) => {
 };
 
 const actorpct = async (value) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/actorpct/${value}`, {
+    var res = await fetch(`${domain}/actorpct/${value}`, {
         method: 'GET',
     })
     return res.json()
@@ -114,7 +120,7 @@ const getAllMovies = async (
     RatingHigh
   ) => {
     var res = await fetch(
-      `http://${config.server_host}:${config.server_port}/movieList?title=${title}&startYearLow=${startYearLow}&startYearHigh=${startYearHigh}&RatingLow=${RatingLow}&RatingHigh=${RatingHigh}`,
+      `${domain}/movieList?title=${title}&startYearLow=${startYearLow}&startYearHigh=${startYearHigh}&RatingLow=${RatingLow}&RatingHigh=${RatingHigh}`,
       {
         method: 'GET',
       }
@@ -123,7 +129,7 @@ const getAllMovies = async (
   }
 
 const getMovieCharacterList = async (value) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/movieCharacterList?mvid=${value}`, {
+    var res = await fetch(`${domain}/movieCharacterList?mvid=${value}`, {
         method: 'GET',
     })
     return res.json()
