@@ -243,7 +243,17 @@ async function findcanda(req, res) {
 async function mvpct(req, res) {
   const mvId = req.params.mvId;
   connection.query(
-    `WITH total AS (
+    `WITH mbti_count AS (
+        SELECT m.movie_id, mbti, COUNT(*) AS mbti_number
+        FROM movie m
+        JOIN characters c
+        ON m.movie_id = c.movie_id
+        WHERE mbti IS NOT NULL
+        AND mbti != 'XXXX'
+        AND m.movie_id = '${mvId}'
+        GROUP BY mbti
+    ),
+      total AS (
           SELECT m.movie_id, COUNT(*) AS total_number
           FROM movie m
           JOIN characters c
@@ -292,7 +302,16 @@ async function actorpct(req, res) {
 async function top5mvmbti(req, res) {
   const mbti_type = req.query.mbti || '';
   connection.query(
-    `SELECT *
+    `
+    CREATE OR REPLACE VIEW mbti_count AS
+        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
+        FROM movie m
+        JOIN characters c
+        ON m.movie_id = c.movie_id
+        WHERE mbti IS NOT NULL
+        AND mbti != 'XXXX'
+        GROUP BY m.movie_id, mbti;
+    SELECT *
     FROM (
         SELECT movie_id, primaryTitle AS movie_title, mbti
         FROM (SELECT movie_id, primaryTitle, mbti,
@@ -303,12 +322,15 @@ async function top5mvmbti(req, res) {
     ) m
     WHERE mbti LIKE '%${mbti_type}%';
     `,
+    [1, 2],
     function (error, results, fields) {
       if (error) {
         console.log(error);
         res.json({ error: error });
       } else {
-        res.json({ results: results});
+        res.json({ results: results[1] });
+        // console.log(results[0]);
+        // console.log(results[1]);
       }
     }
   );

@@ -129,6 +129,8 @@ const getMovieCharacterList = async (value) => {
     return res.json()
 }
 
+
+
 export {
     getcharacterMbtiList,
     getmbtiMatches,
