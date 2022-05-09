@@ -303,14 +303,6 @@ async function top5mvmbti(req, res) {
   const mbti_type = req.query.mbti || '';
   connection.query(
     `
-    CREATE OR REPLACE VIEW mbti_count AS
-        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
-        FROM movie m
-        JOIN characters c
-        ON m.movie_id = c.movie_id
-        WHERE mbti IS NOT NULL
-        AND mbti != 'XXXX'
-        GROUP BY m.movie_id, mbti;
     SELECT *
     FROM (
         SELECT movie_id, primaryTitle AS movie_title, mbti
@@ -322,13 +314,12 @@ async function top5mvmbti(req, res) {
     ) m
     WHERE mbti LIKE '%${mbti_type}%';
     `,
-    [1, 2],
     function (error, results, fields) {
       if (error) {
         console.log(error);
         res.json({ error: error });
       } else {
-        res.json({ results: results[1] });
+        res.json({ results: results});
         // console.log(results[0]);
         // console.log(results[1]);
       }
@@ -376,15 +367,7 @@ async function mvCastMbti(req, res) {
   const mv = req.query.mv ? req.query.mv : 'tt0058385';
   const name = req.query.name ? req.query.name : 'Eliza Doolittle';
   connection.query(
-    `WITH mbti_count AS (
-        SELECT m.movie_id, primaryTitle, mbti, COUNT(*) AS mbti_number
-        FROM movie m
-        JOIN characters c
-        ON m.movie_id = c.movie_id
-        WHERE mbti IS NOT NULL
-        AND mbti != 'XXXX'
-        GROUP BY m.movie_id, mbti
-    ), top_1_movie AS (
+    `WITH top_1_movie AS (
         SELECT movie_id, primaryTitle AS movie_title
         FROM mbti_count
         WHERE mbti= (
