@@ -521,7 +521,7 @@ async function movieCharacterList(req, res) {
     FROM (
             SELECT actorID, Name, movie_id
             FROM play_by
-            WHERE movie_id = 'tt0081505'
+            WHERE movie_id = '${mvid}'
         ) mv
     JOIN (
         SELECT Name, movie_id, img_url,
