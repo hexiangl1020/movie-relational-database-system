@@ -14,5 +14,8 @@
     "test": "jest --coverage",
     "start": "nodemon server.js",
     "build": "cd client && npm install && npm run build"
+  },
+  "engines": {
+    "node": "14.18.1"
   }
 }
