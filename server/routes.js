@@ -243,29 +243,16 @@ async function findcanda(req, res) {
 async function mvpct(req, res) {
   const mvId = req.params.mvId;
   connection.query(
-    `WITH mbti_count AS (
-        SELECT m.movie_id, mbti, COUNT(*) AS mbti_number
-        FROM movie m
-        JOIN characters c
-        ON m.movie_id = c.movie_id
-        WHERE mbti IS NOT NULL
-        AND mbti != 'XXXX'
-        AND m.movie_id = '${mvId}'
-        GROUP BY mbti
-    ),
-      total AS (
-          SELECT m.movie_id, COUNT(*) AS total_number
-          FROM movie m
-          JOIN characters c
-          ON m.movie_id = c.movie_id
-          WHERE mbti IS NOT NULL
-          AND mbti != 'XXXX'
-          GROUP BY m.movie_id
-      )
-    SELECT movie_id, mbti, (mbti_number/total_number)*100 AS percentage
-    FROM mbti_count c
-    NATURAL JOIN total t
-    GROUP BY movie_id, mbti`,
+    `SELECT c.movie_id, mbti, (mbti_number/total_number)*100 AS percentage
+    FROM (
+        SELECT movie_id, mbti,mbti_number
+        FROM mbti_count
+        WHERE movie_id='${mvId}') c
+    NATURAL JOIN (
+        SELECT *
+        FROM total_mv
+        WHERE movie_id='${mvId}') t
+    GROUP BY c.movie_id, mbti`,
     function (error, results, fields) {
       if (error) {
         console.log(error);
