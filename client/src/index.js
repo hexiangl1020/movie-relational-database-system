@@ -20,13 +20,13 @@ ReactDOM.render(
       <Switch>
         <Route exact path='/' render={() => <HomePage />} />
         <Route exact path='/actormbtiplayed' render={() => <ActorPage />} />
-        <Route path='/actorpct/:actid' render={() => <ActorPercentPage />} />
+        <Route path='/actorPerc/:actid' render={() => <ActorPercentPage />} />
 
         <Route
           path='/characterInfo/:movieId/:name'
           render={() => <CharacterPage />}
         />
-        <Route path='/movie/:mvid' render={() => <Movieprofile />} />
+        <Route path='/movieInfo/:mvid' render={() => <Movieprofile />} />
         <Route exact path='/movieList' render={() => <MoviePage />} />
       </Switch>
     </Router>

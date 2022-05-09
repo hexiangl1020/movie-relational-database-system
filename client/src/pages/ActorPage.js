@@ -82,7 +82,7 @@ class ActorPage extends React.Component {
   }
 
   goToActorPtc(actid) {
-    window.location = `/actorpct/${actid}`;
+    window.location = `/actorPerc/${actid}`;
   }
 
   handleActorIdQueryChange(event) {

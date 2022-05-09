@@ -64,7 +64,7 @@ class CharacterPage extends React.Component {
   }
 
   goToMovie(){
-    window.location = `/movie/${this.state.movieDetails.movie_id}`;
+    window.location = `/movieInfo/${this.state.movieDetails.movie_id}`;
   }
 
   goToCharacter(mvid, name) {
