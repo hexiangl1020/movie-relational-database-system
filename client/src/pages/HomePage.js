@@ -73,7 +73,7 @@ class HomePage extends React.Component {
   }
 
   goToMovie(mvid) {
-    window.location = `/movie/${mvid}`
+    window.location = `/movieInfo/${mvid}`
   }
 
   MbtiOnChange(value) {

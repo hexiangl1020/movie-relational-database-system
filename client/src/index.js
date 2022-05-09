@@ -19,15 +19,15 @@ ReactDOM.render(
     <Router>
       <Switch>
         <Route exact path='/' render={() => <HomePage />} />
-        <Route exact path='/actormbtiplayed' render={() => <ActorPage />} />
-        <Route path='/actorpct/:actid' render={() => <ActorPercentPage />} />
+        <Route exact path='/actorMbti' render={() => <ActorPage />} />
+        <Route path='/actorPerc/:actid' render={() => <ActorPercentPage />} />
 
         <Route
           path='/characterInfo/:movieId/:name'
           render={() => <CharacterPage />}
         />
-        <Route path='/movie/:mvid' render={() => <Movieprofile />} />
-        <Route exact path='/movieList' render={() => <MoviePage />} />
+        <Route path='/movieInfo/:mvid' render={() => <Movieprofile />} />
+        <Route exact path='/movieListInfo' render={() => <MoviePage />} />
       </Switch>
     </Router>
   </div>,

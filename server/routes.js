@@ -64,35 +64,31 @@ async function findcsametype(req, res) {
   var linenum = (req.query.page - 1) * pagesize;
   if (req.query.page && !isNaN(req.query.page)) {
     connection.query(
-      `
-        WITH wanted_character
-        AS (SELECT Name,
-                   movie_id,
-                   mbti,
-                   img_url
+      `WITH wanted_character AS
+            (SELECT Name,
+                  movie_id,
+                  mbti,
+                  img_url
             FROM characters
             WHERE mbti = (
                 SELECT DISTINCT mbti
                 FROM characters
-                WHERE Name ='${cname}' 
+                WHERE Name ='${cname}'
                 AND movie_id='${mid}'
                 AND mbti is not null
-                ))
-        SELECT AA.movie_id,
-            AA.name,
-           AA.primaryTitle AS movie_title,
-           AA.mbti,
-           AA.img_url
-        FROM (
-            SELECT W.movie_id, 
+                ) AND Name!='${cname}' AND movie_id != '${mid}')
+        SELECT W.movie_id,
                 W.name,
-                primaryTitle,
+                primaryTitle AS movie_title,
                 mbti,
                 img_url
-            FROM wanted_character W
-            JOIN movie
-            ON W.movie_id=movie.movie_id) AA
-        ORDER BY AA.img_url DESC
+        FROM wanted_character W
+        JOIN (
+            SELECT movie_id, primaryTitle 
+            FROM movie
+            ) m 
+        ON W.movie_id=m.movie_id
+        ORDER BY img_url DESC
         LIMIT ${linenum},${pagesize}`,
       function (error, results, fields) {
         if (error) {
@@ -105,34 +101,31 @@ async function findcsametype(req, res) {
     );
   } else {
     connection.query(
-      `
-        WITH wanted_character
-        AS (SELECT Name,
-                   movie_id,
-                   mbti,
-                   img_url
-            FROM characters
-            WHERE mbti = (
-                SELECT DISTINCT mbti
-                FROM characters
-                WHERE Name ='${cname}' 
-                AND movie_id='${mid}'
-                AND mbti is not null
-                ))
-        SELECT AA.movie_id,
-            AA.name,
-           AA.primaryTitle AS movie_title,
-           AA.mbti,
-           img_url
-        FROM (
-            SELECT W.movie_id, 
-                W.name,
-                primaryTitle,
-                mbti,
-                img_url
-            FROM wanted_character W
-            JOIN movie
-            ON W.movie_id=movie.movie_id) AA`,
+      `WITH wanted_character AS
+      (SELECT Name,
+            movie_id,
+            mbti,
+            img_url
+      FROM characters
+      WHERE mbti = (
+          SELECT DISTINCT mbti
+          FROM characters
+          WHERE Name ='${cname}'
+          AND movie_id='${mid}'
+          AND mbti is not null
+          ) AND Name!='${cname}' AND movie_id != '${mid}')
+      SELECT W.movie_id,
+              W.name,
+              primaryTitle AS movie_title,
+              mbti,
+              img_url
+      FROM wanted_character W
+      JOIN (
+          SELECT movie_id, primaryTitle 
+          FROM movie
+          ) m 
+      ON W.movie_id=m.movie_id
+      ORDER BY img_url DESC`,
       function (error, results, fields) {
         if (error) {
           console.log(error);
@@ -243,29 +236,16 @@ async function findcanda(req, res) {
 async function mvpct(req, res) {
   const mvId = req.params.mvId;
   connection.query(
-    `WITH mbti_count AS (
-        SELECT m.movie_id, mbti, COUNT(*) AS mbti_number
-        FROM movie m
-        JOIN characters c
-        ON m.movie_id = c.movie_id
-        WHERE mbti IS NOT NULL
-        AND mbti != 'XXXX'
-        AND m.movie_id = '${mvId}'
-        GROUP BY mbti
-    ),
-      total AS (
-          SELECT m.movie_id, COUNT(*) AS total_number
-          FROM movie m
-          JOIN characters c
-          ON m.movie_id = c.movie_id
-          WHERE mbti IS NOT NULL
-          AND mbti != 'XXXX'
-          GROUP BY m.movie_id
-      )
-    SELECT movie_id, mbti, (mbti_number/total_number)*100 AS percentage
-    FROM mbti_count c
-    NATURAL JOIN total t
-    GROUP BY movie_id, mbti`,
+    `SELECT c.movie_id, mbti, (mbti_number/total_number)*100 AS percentage
+    FROM (
+        SELECT movie_id, mbti,mbti_number
+        FROM mbti_count
+        WHERE movie_id='${mvId}') c
+    NATURAL JOIN (
+        SELECT *
+        FROM total_mv
+        WHERE movie_id='${mvId}') t
+    GROUP BY c.movie_id, mbti`,
     function (error, results, fields) {
       if (error) {
         console.log(error);
@@ -401,27 +381,40 @@ async function samembtiactor(req, res) {
 
   connection.query(
     `WITH played_actor AS (
-        SELECT play_by.actorID
-        FROM play_by
-        WHERE play_by.Name = '${name}' AND movie_id='${mvid}'
-        LIMIT 1
-    ),
-    other_character_same_actor AS (
-        SELECT play_by.Name, play_by.movie_id, play_by.actorID
-        FROM play_by
-        JOIN played_actor ON play_by.actorID = played_actor.actorID
-        WHERE play_by.Name != '${name}' AND movie_id!='${mvid}'
-    ),
-    same_mbti AS(
-        SELECT *
-        FROM characters
-        WHERE mbti=(SELECT mbti FROM characters WHERE characters.Name = '${name}' AND movie_id='${mvid}' LIMIT 1)
-    )
-    SELECT oci.Name AS character_name, m.primaryTitle AS movie_title, a.primaryName, m.movie_id
-    FROM other_character_same_actor oci
-    JOIN actors a on a.actor_id = oci.actorID
-    JOIN same_mbti sm ON oci.movie_id = sm.movie_id AND oci.Name = sm.Name
-    JOIN movie m on m.movie_id = oci.movie_id`,
+      SELECT play_by.actorID
+      FROM play_by
+      WHERE play_by.Name = '${name}' AND movie_id='${mvid}'
+      LIMIT 1
+  ),
+  other_character_same_actor AS (
+      SELECT pb.Name, pb.movie_id, pb.actorID
+      FROM (
+          SELECT *
+          FROM play_by
+          WHERE Name != '${name}' AND movie_id!='${mvid}'
+          ) pb
+      JOIN played_actor ON pb.actorID = played_actor.actorID
+  ),
+  same_mbti AS(
+      SELECT *
+      FROM characters
+      WHERE mbti=
+          (SELECT mbti
+          FROM characters
+          WHERE characters.Name = '${name}' AND movie_id='${mvid}'
+          LIMIT 1)
+  )
+  SELECT oci.Name AS character_name, m.primaryTitle AS movie_title, a.primaryName, m.movie_id
+  FROM other_character_same_actor oci
+  JOIN actors a on a.actor_id = oci.actorID
+  JOIN (
+    SELECT movie_id, Name
+    FROM same_mbti) sm
+  ON oci.movie_id = sm.movie_id AND oci.Name = sm.Name
+  JOIN (
+    SELECT movie_id, primaryTitle
+    FROM movie) m
+  ON m.movie_id = oci.movie_id`,
     function (error, results, fields) {
       if (error) {
         console.log(error);
@@ -524,16 +517,18 @@ async function movieCharacterList(req, res) {
     const mvid = req.query.mvid;
     connection.query(
     `
-    SELECT mv.actorID, mv.Name, mv.movie_id, a.primaryName, c.img_url,
-       CASE
-           WHEN c.mbti IS NULL THEN '' ELSE c.mbti
-       END as mbti
+    SELECT mv.actorID, mv.Name, mv.movie_id, a.primaryName, c.img_url, c.mbti
     FROM (
             SELECT actorID, Name, movie_id
             FROM play_by
             WHERE movie_id = '${mvid}'
         ) mv
-    JOIN characters c ON mv.movie_id = c.movie_id AND mv.Name = c.Name
+    JOIN (
+        SELECT Name, movie_id, img_url,
+            CASE WHEN mbti IS NULL THEN '' ELSE mbti
+            END as mbti
+      FROM characters) c
+    ON mv.movie_id = c.movie_id AND mv.Name = c.Name
     JOIN actors a ON mv.actorID = a.actor_id
     ORDER BY c.img_url DESC`,
       function (error, results, fields) {

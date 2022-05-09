@@ -1,14 +1,18 @@
 const express = require('express');
 const mysql = require('mysql');
 var cors = require('cors');
-
+const path = require('path');
 const routes = require('./routes');
 const config = require('./config.json');
 
+const port = process.env.PORT || 8080;
+
 const app = express();
+app.use(cors());
 
 // whitelist localhost 3000
 app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.get('/hello', routes.hello);
 
@@ -43,10 +47,14 @@ app.get('/characterMbtiList', routes.characterMbtiList);
 
 app.get('/movieCharacterList', routes.movieCharacterList);
 
-app.listen(config.server_port, () => {
+app.listen(port, () => {
   console.log(
-    `Server running at http://${config.server_host}:${config.server_port}/`
+    `Server running at http://${config.server_host}:${port}/`
   );
 });
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
+
 
 module.exports = app;

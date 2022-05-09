@@ -50,7 +50,7 @@ class MoviesPage extends React.Component {
     });
   }
   goToMovieProfile(movieId) {
-    window.location = `/movie/${movieId}`;
+    window.location = `/movieInfo/${movieId}`;
   }
 
   updateSearchResults() {

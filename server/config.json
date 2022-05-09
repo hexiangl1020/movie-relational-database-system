@@ -4,6 +4,6 @@
     "rds_user": "admin",
     "rds_password" : "cis550project",
     "rds_db": "550project",
-    "server_host": "127.0.0.1",
+    "server_host": "https://mbti-personality.herokuapp.com",
     "server_port":"8080"
 }
